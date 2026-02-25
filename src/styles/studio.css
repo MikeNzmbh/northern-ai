@@ -1,0 +1,176 @@
+/* ─── TARS Studio Design Tokens ───────────────────────────────────────────────
+   Extracted from governance-workspace.tsx / luxuryBrutalistStyles.
+   Import this once in your app; never inline these values.
+─────────────────────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&family=JetBrains+Mono:wght@100;300;400&display=swap');
+
+:root {
+    --bg-carbon: #0A0908;
+    --bg-surface: #121110;
+    --bg-paper: #f2f1ef;
+    --bg-paper-soft: #ebeae8;
+    --text-ink: #4f4a44;
+    --text-stone: #7f7a74;
+    --text-shadow: #9f9a94;
+    --text-bone: #F2F0ED;
+    --border-hairline: rgba(10, 9, 8, 0.08);
+    --border-focus: rgba(10, 9, 8, 0.25);
+}
+
+/* ── Page background ────────────────────────────────────────────────────────── */
+.studio-page {
+    background:
+        linear-gradient(180deg,
+            var(--bg-paper) 0%,
+            var(--bg-paper-soft) 72%,
+            #e2dfda 86%,
+            #cbc7c0 94%,
+            #11100f 100%);
+    color: var(--text-ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    position: relative;
+}
+
+::selection {
+    background: var(--bg-carbon);
+    color: var(--bg-paper);
+}
+
+/* ── Architectural grid overlay ─────────────────────────────────────────────── */
+.architectural-grid {
+    background-image:
+        linear-gradient(to right, var(--border-hairline) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border-hairline) 1px, transparent 1px);
+    background-size: 100px 100px;
+    background-position: center center;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(circle at center, black 30%, transparent 85%);
+    -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 85%);
+}
+
+/* ── Film grain overlay ─────────────────────────────────────────────────────── */
+.film-grain {
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 50;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* ── Monospace metadata label ────────────────────────────────────────────────── */
+.mono-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-stone);
+}
+
+/* ── Blinking cursor block ───────────────────────────────────────────────────── */
+@keyframes blink-heavy {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+.cursor-block {
+    display: inline-block;
+    width: 0.56em;
+    height: 1.15em;
+    background-color: #34312d;
+    vertical-align: middle;
+    margin-left: 6px;
+    animation: blink-heavy 1.2s step-end infinite;
+}
+
+/* ── Message row reveal ──────────────────────────────────────────────────────── */
+@keyframes reveal-up {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-reveal {
+    animation: reveal-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Artifact card enter ─────────────────────────────────────────────────────── */
+@keyframes gov-artifact-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.studio-artifact {
+    opacity: 0;
+    animation: gov-artifact-enter 380ms ease-out forwards;
+}
+
+/* ── Command strip fade ──────────────────────────────────────────────────────── */
+.command-fade {
+    background: linear-gradient(to top,
+            var(--bg-carbon) 0%,
+            color-mix(in srgb, var(--bg-carbon) 92%, transparent) 60%,
+            transparent 100%);
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-shadow);
+    border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-stone);
+}
+
+textarea::-webkit-scrollbar {
+    width: 2px;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+
+    .animate-reveal,
+    .studio-artifact,
+    .cursor-block {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
