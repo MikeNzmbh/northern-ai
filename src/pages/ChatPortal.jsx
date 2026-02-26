@@ -3,9 +3,16 @@ import { Link } from 'react-router-dom';
 import '../styles/studio.css';
 import { requestJson, requestMultipartJson } from '../lib/api';
 import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../hooks/useAuth';
+import { useDeviceStatus } from '../hooks/useDeviceStatus';
+import { usePortalQueue } from '../hooks/usePortalQueue';
+import DeviceStatusBadge from '../components/DeviceStatusBadge';
+import OfflineBanner from '../components/OfflineBanner';
+import QueueStatusCard from '../components/QueueStatusCard';
+import Toast from '../components/Toast';
 
 // ─── Feature flags ────────────────────────────────────────────────────────────
-const DEVICE_PANEL_ENABLED = false;
+const DEVICE_PANEL_ENABLED = true;
 
 // ─── Session persistence ──────────────────────────────────────────────────────
 const SESSION_ID_KEY = 'northern.chat.session_id.v1';
@@ -121,6 +128,8 @@ const OPENAI_ATTACHMENT_MIME_TYPES = new Set([
 
 const OPENAI_ATTACHMENT_EXTENSION_SET = new Set(OPENAI_ATTACHMENT_EXTENSIONS);
 const OPENAI_ATTACHMENT_ACCEPT = OPENAI_ATTACHMENT_EXTENSIONS.join(',');
+const TERMINAL_CONCIERGE_STATUSES = new Set(['done', 'failed', 'canceled']);
+const ACTIVE_CONCIERGE_STATUSES = new Set(['clarifying', 'planned', 'waiting_approval', 'running', 'verifying']);
 
 function getFileExtension(name) {
     const value = String(name || '').toLowerCase();
@@ -159,6 +168,68 @@ function formatBytes(value) {
 
 function isChatSessionNotFoundError(err) {
     return Number(err?.status) === 404 && /chat session not found/i.test(String(err?.message || ''));
+}
+
+function formatEtaRange(eta) {
+    if (!eta || typeof eta !== 'object') return '';
+    const low = Number(eta.minutes_low);
+    const high = Number(eta.minutes_high);
+    if (!Number.isFinite(low) || !Number.isFinite(high)) return '';
+    const conf = Number(eta.confidence);
+    const confText = Number.isFinite(conf) ? ` · ${Math.round(Math.max(0, Math.min(1, conf)) * 100)}% confidence` : '';
+    return `${Math.max(0, Math.round(low))}-${Math.max(0, Math.round(high))} min${confText}`;
+}
+
+function titleCaseWords(value) {
+    return String(value || '')
+        .split(/[_\s-]+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+}
+
+function extractConciergeMetaFromResponse(resp) {
+    const provenance = resp?.provenance;
+    if (!provenance || typeof provenance !== 'object') return null;
+
+    const handoff = provenance.concierge_handoff;
+    const run = provenance.concierge_run;
+    if ((!handoff || typeof handoff !== 'object') && (!run || typeof run !== 'object')) {
+        return null;
+    }
+
+    const handoffObj = (handoff && typeof handoff === 'object') ? handoff : {};
+    const runObj = (run && typeof run === 'object') ? run : {};
+    const eta = (handoffObj.eta && typeof handoffObj.eta === 'object')
+        ? handoffObj.eta
+        : (runObj.eta && typeof runObj.eta === 'object' ? runObj.eta : null);
+    const gapBuild = (handoffObj.gap_build && typeof handoffObj.gap_build === 'object')
+        ? handoffObj.gap_build
+        : (runObj.gap_build && typeof runObj.gap_build === 'object' ? runObj.gap_build : null);
+
+    return {
+        runId: String(handoffObj.run_id || runObj.run_id || '').trim() || null,
+        status: String(runObj.status || '').trim() || null,
+        approvalRequired: Boolean(handoffObj.approval_required ?? runObj.approval_required),
+        eta,
+        plan: (runObj.plan && typeof runObj.plan === 'object') ? runObj.plan : null,
+        gapBuild,
+        rawRun: runObj,
+        rawHandoff: handoffObj,
+    };
+}
+
+function extractConciergeMetaFromRunPayload(runObj) {
+    if (!runObj || typeof runObj !== 'object') return null;
+    return extractConciergeMetaFromResponse({ provenance: { concierge_run: runObj } });
+}
+
+function requiredApprovalScopesFromMeta(meta) {
+    const items = Array.isArray(meta?.plan?.approval_items) ? meta.plan.approval_items : [];
+    return items
+        .filter((item) => item && typeof item === 'object' && item.required && item.scope)
+        .map((item) => String(item.scope))
+        .filter(Boolean);
 }
 
 async function entryToFile(entry) {
@@ -269,6 +340,54 @@ export default function ChatPortal() {
         [settings.apiBaseUrl]
     );
 
+    // Rule A auth gate with local SSO mock intercept
+    const { user: realUser, loading: authLoading, logout: realLogout } = useAuth(apiBase, false);
+    const [mockAuth, setMockAuth] = useState(false);
+
+    const user = useMemo(() => {
+        return realUser || (mockAuth ? { email: 'demo@northern.com', name: 'Demo Mode' } : null);
+    }, [realUser, mockAuth]);
+
+    const logout = useCallback(() => {
+        if (mockAuth) setMockAuth(false);
+        else realLogout();
+    }, [mockAuth, realLogout]);
+
+    // Device state
+    const { deviceStatus, refresh: refreshDeviceStatus } = useDeviceStatus(apiBase, user);
+
+    // Queue state
+    const { items: queuePollItems, refresh: refreshQueue } = usePortalQueue(apiBase, user, deviceStatus?.state);
+    const [localQueueItems, setLocalQueueItems] = useState([]);
+
+    // Toast state
+    const [toastMessage, setToastMessage] = useState(null);
+
+    // Track previous state for transitions
+    const prevStateRef = useRef(deviceStatus?.state);
+
+    useEffect(() => {
+        if (!queuePollItems || !queuePollItems.length) return;
+        setLocalQueueItems(prev => {
+            const next = [...prev];
+            let changed = false;
+            for (const incoming of queuePollItems) {
+                const idx = next.findIndex(item => item.id === incoming.id);
+                if (idx >= 0) {
+                    if (JSON.stringify(next[idx]) !== JSON.stringify(incoming)) {
+                        next[idx] = incoming;
+                        changed = true;
+                    }
+                } else {
+                    next.push(incoming);
+                    changed = true;
+                }
+            }
+            // Sort by created_at desc if we want newest at bottom, but backend returns them sorted.
+            return changed ? next : prev;
+        });
+    }, [queuePollItems]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -279,6 +398,7 @@ export default function ChatPortal() {
     const [dragActive, setDragActive] = useState(false);
     const [busy, setBusy] = useState(false);
     const [thinkTs, setThinkTs] = useState(null);
+    const [conciergeUiByRun, setConciergeUiByRun] = useState({});
 
     const endRef = useRef(null);
     const inputRef = useRef(null);
@@ -286,6 +406,17 @@ export default function ChatPortal() {
     const folderInputRef = useRef(null);
     const tel = useTelemetry(busy);
     const status = busy ? 'COMPUTING' : 'STANDBY';
+
+    const activeConciergeRunIds = useMemo(() => {
+        const ids = new Set();
+        for (const msg of messages) {
+            const runId = msg?.conciergeMeta?.runId;
+            const runStatus = String(msg?.conciergeMeta?.status || '').toLowerCase();
+            if (!runId) continue;
+            if (!runStatus || ACTIVE_CONCIERGE_STATUSES.has(runStatus)) ids.add(runId);
+        }
+        return Array.from(ids);
+    }, [messages]);
 
     // scroll to bottom on new messages
     useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, busy]);
@@ -435,6 +566,73 @@ export default function ChatPortal() {
         setDragActive(false);
     }, []);
 
+    const mergeConciergeRunIntoMessages = useCallback((runPayload) => {
+        const nextMeta = extractConciergeMetaFromRunPayload(runPayload);
+        if (!nextMeta?.runId) return;
+        setMessages((prev) => prev.map((msg) => (
+            msg?.conciergeMeta?.runId === nextMeta.runId
+                ? { ...msg, conciergeMeta: { ...msg.conciergeMeta, ...nextMeta } }
+                : msg
+        )));
+    }, []);
+
+    const refreshConciergeRun = useCallback(async (runId) => {
+        const sid = activeSessionId;
+        if (!sid || !runId) return;
+        const payload = await requestJson(
+            apiBase,
+            `/chat/sessions/${encodeURIComponent(sid)}/concierge/runs/${encodeURIComponent(runId)}`,
+            { method: 'GET' }
+        );
+        mergeConciergeRunIntoMessages(payload);
+        setConciergeUiByRun((prev) => {
+            if (!prev[runId]?.error) return prev;
+            return { ...prev, [runId]: { ...prev[runId], error: null } };
+        });
+    }, [activeSessionId, apiBase, mergeConciergeRunIntoMessages]);
+
+    const approveConciergeRun = useCallback(async (meta) => {
+        const sid = activeSessionId;
+        const runId = String(meta?.runId || '').trim();
+        if (!sid || !runId) return;
+        const approvedScopes = requiredApprovalScopesFromMeta(meta);
+        setConciergeUiByRun((prev) => ({
+            ...prev,
+            [runId]: { ...(prev[runId] || {}), approving: true, error: null },
+        }));
+        try {
+            const payload = await requestJson(
+                apiBase,
+                `/chat/sessions/${encodeURIComponent(sid)}/concierge/runs/${encodeURIComponent(runId)}/approve`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        decision: 'approve',
+                        approved_scopes: approvedScopes,
+                    }),
+                }
+            );
+            mergeConciergeRunIntoMessages(payload);
+            setConciergeUiByRun((prev) => ({
+                ...prev,
+                [runId]: { ...(prev[runId] || {}), approving: false, error: null },
+            }));
+        } catch (err) {
+            const detail = err?.payload?.detail;
+            const runtimeMsg = (detail && typeof detail === 'object')
+                ? String(detail.message || detail.error || '')
+                : '';
+            setConciergeUiByRun((prev) => ({
+                ...prev,
+                [runId]: {
+                    ...(prev[runId] || {}),
+                    approving: false,
+                    error: runtimeMsg || err.message || 'Could not approve run.',
+                },
+            }));
+        }
+    }, [activeSessionId, apiBase, mergeConciergeRunIntoMessages]);
+
     const removePendingAttachment = useCallback(async (attachmentId) => {
         const removedItem = pendingAttachments.find((item) => item.attachment_id === attachmentId) || null;
         setPendingAttachments((prev) => prev.filter((item) => item.attachment_id !== attachmentId));
@@ -460,6 +658,13 @@ export default function ChatPortal() {
 
     // ── Boot ──────────────────────────────────────────────────────────────────
     useEffect(() => {
+        if (authLoading) return; // Wait until auth check finishes
+
+        if (!user) {
+            setLoading(false);
+            return;
+        }
+
         let mounted = true;
         (async () => {
             try {
@@ -483,7 +688,32 @@ export default function ChatPortal() {
         })();
         return () => { mounted = false; };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [createSession, ensureSession, loadMessages]);
+    }, [createSession, ensureSession, loadMessages, authLoading, user]);
+
+    // Session recovery on sleeping -> online transition
+    useEffect(() => {
+        const current = deviceStatus?.state;
+        const prev = prevStateRef.current;
+        prevStateRef.current = current;
+
+        if (prev === 'sleeping' && current === 'online') {
+            setToastMessage('Northern is now online. Reconnecting session...');
+            void (async () => {
+                const sid = await ensureSession();
+                await loadMessages(sid);
+                await refreshQueue();
+            })();
+        }
+    }, [deviceStatus?.state, ensureSession, loadMessages, refreshQueue]);
+
+    const handleRetryQueueItem = useCallback(async (itemId) => {
+        try {
+            await requestJson(apiBase, `/auth/portal/queue/${encodeURIComponent(itemId)}/retry`, { method: 'POST' });
+            await refreshQueue();
+        } catch (err) {
+            setToastMessage('Failed to retry message: ' + err.message);
+        }
+    }, [apiBase, refreshQueue]);
 
     // ── Send ──────────────────────────────────────────────────────────────────
     const handleExecute = useCallback(async (e, forcedText) => {
@@ -512,6 +742,36 @@ export default function ChatPortal() {
 
         try {
             let sid = await ensureSession();
+
+            // Branch to offline queue if device is not online
+            if (deviceStatus?.state !== 'online') {
+                try {
+                    await requestJson(apiBase, '/auth/portal/queue', {
+                        method: 'POST',
+                        body: JSON.stringify({ session_id: sid, text })
+                    });
+                    if (attachmentsForSend.length) {
+                        setPendingAttachments([]);
+                    }
+                    await refreshQueue();
+                } catch (err) {
+                    if (err?.status === 409 || err?.message?.includes('Queue depth')) {
+                        setToastMessage('Queue full. Please wait for device to process messages.');
+                        setMessages(prev => [...prev, {
+                            id: makeMsgId('err'),
+                            role: 'SYSTEM',
+                            content: 'Queue limit reached (max 50).',
+                            timestamp: getExactTime(),
+                            isStreaming: false,
+                        }]);
+                    } else throw err;
+                } finally {
+                    setBusy(false);
+                    setThinkTs(null);
+                }
+                return;
+            }
+
             const context = attachmentsForSend.length
                 ? {
                     uploaded_files: attachmentsForSend.map((item) => ({
@@ -550,6 +810,7 @@ export default function ChatPortal() {
                 setPendingAttachments([]);
             }
             const reply = resp?.reply || resp?.content || '…';
+            const conciergeMeta = extractConciergeMetaFromResponse(resp);
             const northernId = makeMsgId('northern');
             setMessages(prev => [...prev, {
                 id: northernId,
@@ -557,6 +818,7 @@ export default function ChatPortal() {
                 content: '',
                 timestamp: getExactTime(),
                 isStreaming: true,
+                conciergeMeta,
             }]);
             await streamReply(northernId, reply, setMessages);
         } catch (err) {
@@ -572,6 +834,35 @@ export default function ChatPortal() {
             setThinkTs(null);
         }
     }, [apiBase, busy, createSession, ensureSession, input, pendingAttachments, uploadingFiles]);
+
+    useEffect(() => {
+        if (!activeSessionId) return undefined;
+        if (!activeConciergeRunIds.length) return undefined;
+        let cancelled = false;
+
+        const poll = async () => {
+            for (const runId of activeConciergeRunIds) {
+                try {
+                    // eslint-disable-next-line no-await-in-loop
+                    await refreshConciergeRun(runId);
+                } catch (err) {
+                    if (cancelled) return;
+                    const msg = err?.message || 'Could not refresh async builder run.';
+                    setConciergeUiByRun((prev) => ({
+                        ...prev,
+                        [runId]: { ...(prev[runId] || {}), error: msg },
+                    }));
+                }
+            }
+        };
+
+        void poll();
+        const iid = window.setInterval(() => { void poll(); }, 5000);
+        return () => {
+            cancelled = true;
+            window.clearInterval(iid);
+        };
+    }, [activeConciergeRunIds, activeSessionId, refreshConciergeRun]);
 
     const startNew = useCallback(async () => {
         setError(null);
@@ -648,6 +939,7 @@ export default function ChatPortal() {
                                 {status}
                             </span>
                         </div>
+                        <DeviceStatusBadge status={deviceStatus} />
                     </div>
 
                     {/* Nav actions */}
@@ -657,6 +949,7 @@ export default function ChatPortal() {
                             { label: 'Personality', to: '/onboarding' },
                             { label: 'Settings', to: '/settings' },
                             { label: 'Home', to: '/' },
+                            ...(user ? [{ label: 'Logout', onClick: logout }] : [{ label: 'Sign in', onClick: () => window.location.href = '/login?next=/chat' }])
                         ].map(item => item.to ? (
                             <Link key={item.label} to={item.to}
                                 className="mono-meta px-3 py-1.5 transition-colors hover:opacity-80"
@@ -674,6 +967,8 @@ export default function ChatPortal() {
                 </div>
             </header>
 
+            <OfflineBanner status={deviceStatus} />
+
             {/* ── Error banner ── */}
             {error && (
                 <div className="relative z-10 mx-6 md:mx-12 mb-4 px-4 py-2 border mono-meta"
@@ -687,30 +982,81 @@ export default function ChatPortal() {
 
                 {/* Empty state */}
                 {messages.length === 0 && !busy ? (
-                    <div className="flex-1 flex flex-col justify-center max-w-3xl animate-reveal mt-12 md:mt-24">
-                        <h2 className="text-3xl md:text-5xl font-light leading-tight tracking-tight mb-6"
-                            style={{ color: 'var(--text-ink)' }}>
-                            Chat with<br />NORTHERN
-                        </h2>
-                        <p className="text-base md:text-lg font-light leading-relaxed mb-12 max-w-xl"
-                            style={{ color: 'var(--text-stone)' }}>
-                            Type a message below, or choose a starter prompt to begin.
-                        </p>
-                        <div className="flex flex-col gap-4">
-                            <span className="mono-meta mb-2" style={{ color: 'var(--text-shadow)' }}>Starter prompts</span>
-                            {SUGGESTED.map(seq => (
-                                <button key={seq} type="button" onClick={() => void handleExecute(null, seq)}
-                                    className="text-left py-4 px-6 border transition-all duration-300 group flex items-center justify-between"
-                                    style={{ borderColor: 'var(--border-hairline)' }}
-                                    onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-focus)'}
-                                    onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-hairline)'}>
-                                    <span className="font-light tracking-wide transition-colors" style={{ color: 'var(--text-stone)' }}>
-                                        {seq}
-                                    </span>
-                                    <span style={{ color: 'var(--text-shadow)' }}>→</span>
-                                </button>
-                            ))}
-                        </div>
+                    <div className={!user ? "flex-1 flex flex-col items-center justify-center animate-reveal" : "flex-1 flex flex-col justify-center max-w-3xl animate-reveal mt-12 md:mt-24"}>
+                        {!user ? (
+                            <div className="w-full max-w-md p-10 border border-[var(--border-hairline)] bg-[rgba(255,255,255,0.01)] text-center flex flex-col items-center gap-8 backdrop-blur-sm relative overflow-hidden group">
+                                {/* Ambient glow */}
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.03)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+
+                                <div className="mono-meta uppercase tracking-[0.2em] opacity-60 flex items-center gap-3 relative z-10" style={{ color: 'var(--text-shadow)' }}>
+                                    <span className="w-4 h-[1px] bg-current" />
+                                    Authentication Required
+                                    <span className="w-4 h-[1px] bg-current" />
+                                </div>
+
+                                <h3 className="text-2xl font-light leading-snug relative z-10" style={{ color: 'var(--text-ink)' }}>
+                                    Sign up or continue with<br />Google or Apple
+                                </h3>
+
+                                <div className="flex flex-col w-full gap-3 mt-2 relative z-10">
+                                    <a href="/login?next=/chat" className="w-full flex items-center justify-center gap-3 px-6 py-4 border transition-all duration-300 hover:scale-[1.02]" style={{ borderColor: '#000000', backgroundColor: '#000000', color: '#ffffff' }}>
+                                        <span className="font-medium tracking-wide">Continue with Email</span>
+                                    </a>
+
+                                    <div className="flex gap-3">
+                                        <button onClick={() => setMockAuth(true)} className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
+                                            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                                                <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+                                                    <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
+                                                    <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
+                                                    <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
+                                                    <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
+                                                </g>
+                                            </svg>
+                                            <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-3 font-medium text-sm">Google</span>
+                                        </button>
+                                        <button onClick={() => setMockAuth(true)} className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
+                                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" className="shrink-0 -mt-0.5">
+                                                <path d="M16.92 14.88c-.02-2.32 1.9-3.44 1.98-3.49-1.08-1.58-2.76-1.8-3.36-1.82-1.42-.14-2.78.84-3.5.84-.71 0-1.84-.81-3.04-.79-1.55.02-2.98.9-3.78 2.29-1.62 2.8-.41 6.94 1.18 9.22.77 1.11 1.68 2.36 2.89 2.31 1.16-.04 1.61-.75 3.01-.75 1.4 0 1.83.75 3.04.73 1.25-.02 2.05-1.15 2.8-2.26.87-1.27 1.23-2.5 1.24-2.56-.02-.01-2.39-.91-2.41-3.62zM14.99 6.88c.63-.77 1.06-1.83.94-2.88-.91.04-2.02.61-2.67 1.39-.58.68-1.09 1.77-.94 2.8 1.02.08 2.03-.54 2.67-1.31z" />
+                                            </svg>
+                                            <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-2 font-medium text-sm">Apple</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <h2 className="text-3xl md:text-5xl font-light leading-tight tracking-tight mb-6"
+                                    style={{ color: 'var(--text-ink)' }}>
+                                    Chat with<br />NORTHERN
+                                </h2>
+                                <p className="text-base md:text-lg font-light leading-relaxed mb-12 max-w-xl"
+                                    style={{ color: 'var(--text-stone)' }}>
+                                    Type a message below, or choose a starter prompt to begin.
+                                </p>
+                                <div className="flex flex-col gap-4">
+                                    <span className="mono-meta mb-2" style={{ color: 'var(--text-shadow)' }}>Starter prompts</span>
+                                    {deviceStatus?.state === 'online' ? (
+                                        SUGGESTED.map(seq => (
+                                            <button key={seq} type="button" onClick={() => void handleExecute(null, seq)}
+                                                className="text-left py-4 px-6 border transition-all duration-300 group flex items-center justify-between"
+                                                style={{ borderColor: 'var(--border-hairline)' }}
+                                                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border-focus)'}
+                                                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-hairline)'}>
+                                                <span className="font-light tracking-wide transition-colors" style={{ color: 'var(--text-stone)' }}>
+                                                    {seq}
+                                                </span>
+                                                <span style={{ color: 'var(--text-shadow)' }}>→</span>
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="p-4 border border-[var(--border-hairline)] text-[var(--text-stone)] mono-meta">
+                                            Device is {deviceStatus?.state || 'not connected'}. Please connect or wake your device to use starter prompts.
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
                 ) : (
                     <div className="flex flex-col w-full">
@@ -769,8 +1115,160 @@ export default function ChatPortal() {
                                             ))}
                                         </div>
                                     )}
+                                    {msg.role === 'INTELLIGENCE' && msg.conciergeMeta && (
+                                        <div
+                                            className="mt-5 border p-4 md:p-5"
+                                            style={{
+                                                borderColor: 'var(--border-hairline)',
+                                                background: 'rgba(255,255,255,0.01)',
+                                            }}
+                                        >
+                                            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                                                <div className="mono-meta" style={{ color: 'var(--text-ink)' }}>
+                                                    ASYNC BUILDER RUN
+                                                </div>
+                                                <div className="mono-meta" style={{ color: 'var(--text-shadow)' }}>
+                                                    {msg.conciergeMeta.runId || 'pending'}
+                                                </div>
+                                            </div>
+
+                                            {(() => {
+                                                const runUi = conciergeUiByRun[msg.conciergeMeta.runId || ''] || {};
+                                                return (
+                                                    <>
+                                                        <div className="mt-3 flex flex-wrap gap-2">
+                                                            {msg.conciergeMeta.status && (
+                                                                <span
+                                                                    className="mono-meta px-2 py-1 border"
+                                                                    style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-shadow)' }}
+                                                                >
+                                                                    STATUS · {titleCaseWords(msg.conciergeMeta.status)}
+                                                                </span>
+                                                            )}
+                                                            {msg.conciergeMeta.approvalRequired && (
+                                                                <span
+                                                                    className="mono-meta px-2 py-1 border"
+                                                                    style={{ borderColor: 'var(--border-focus)', color: 'var(--text-ink)' }}
+                                                                >
+                                                                    APPROVAL REQUIRED
+                                                                </span>
+                                                            )}
+                                                            {formatEtaRange(msg.conciergeMeta.eta) && (
+                                                                <span
+                                                                    className="mono-meta px-2 py-1 border"
+                                                                    style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-shadow)' }}
+                                                                >
+                                                                    ETA · {formatEtaRange(msg.conciergeMeta.eta)}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="mt-3 flex flex-wrap gap-2">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => void refreshConciergeRun(msg.conciergeMeta.runId)}
+                                                                className="mono-meta px-3 py-1.5 border"
+                                                                style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-shadow)' }}
+                                                            >
+                                                                Refresh status
+                                                            </button>
+                                                            {msg.conciergeMeta.approvalRequired
+                                                                && String(msg.conciergeMeta.status || '').toLowerCase() === 'waiting_approval'
+                                                                && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => void approveConciergeRun(msg.conciergeMeta)}
+                                                                        disabled={Boolean(runUi.approving)}
+                                                                        className="mono-meta px-3 py-1.5 border"
+                                                                        style={{
+                                                                            borderColor: 'var(--border-focus)',
+                                                                            color: 'var(--text-ink)',
+                                                                            opacity: runUi.approving ? 0.6 : 1,
+                                                                        }}
+                                                                    >
+                                                                        {runUi.approving ? 'Approving…' : 'Approve run'}
+                                                                    </button>
+                                                                )}
+                                                        </div>
+                                                        {runUi.error && (
+                                                            <div
+                                                                className="mt-3 mono-meta"
+                                                                style={{ color: 'var(--text-shadow)' }}
+                                                            >
+                                                                {runUi.error}
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()}
+
+                                            {msg.conciergeMeta.plan?.summary && (
+                                                <p
+                                                    className="mt-4 text-sm md:text-base font-light leading-relaxed"
+                                                    style={{ color: 'var(--text-stone)' }}
+                                                >
+                                                    {msg.conciergeMeta.plan.summary}
+                                                </p>
+                                            )}
+
+                                            {Array.isArray(msg.conciergeMeta.plan?.steps) && msg.conciergeMeta.plan.steps.length > 0 && (
+                                                <div className="mt-4 flex flex-col gap-2">
+                                                    {(msg.conciergeMeta.plan.steps || []).slice(0, 4).map((step, idx) => (
+                                                        <div
+                                                            key={`${msg.conciergeMeta.runId || 'run'}-step-${idx}`}
+                                                            className="mono-meta flex items-start gap-2"
+                                                            style={{ color: 'var(--text-shadow)' }}
+                                                        >
+                                                            <span style={{ minWidth: '1.5rem' }}>{String(idx + 1).padStart(2, '0')}</span>
+                                                            <span>{step?.summary || titleCaseWords(step?.kind || 'step')}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {msg.conciergeMeta.gapBuild && (
+                                                <div
+                                                    className="mt-4 p-3 border"
+                                                    style={{ borderColor: 'var(--border-hairline)', background: 'rgba(255,255,255,0.01)' }}
+                                                >
+                                                    <div className="mono-meta" style={{ color: 'var(--text-shadow)' }}>
+                                                        GAP BUILD
+                                                    </div>
+                                                    <div className="mt-2 flex flex-wrap gap-2">
+                                                        {msg.conciergeMeta.gapBuild.gap_name_hint && (
+                                                            <span className="mono-meta" style={{ color: 'var(--text-stone)' }}>
+                                                                Capability: {msg.conciergeMeta.gapBuild.gap_name_hint}
+                                                            </span>
+                                                        )}
+                                                        {msg.conciergeMeta.gapBuild.auto_triggered && (
+                                                            <span className="mono-meta" style={{ color: 'var(--text-shadow)' }}>
+                                                                Auto-triggered
+                                                            </span>
+                                                        )}
+                                                        {msg.conciergeMeta.gapBuild.catalog_refresh?.done && (
+                                                            <span className="mono-meta" style={{ color: 'var(--text-ink)' }}>
+                                                                Catalog refreshed
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {msg.conciergeMeta.gapBuild.build_result?.codex_summary_plain && (
+                                                        <p
+                                                            className="mt-3 text-sm md:text-base font-light leading-relaxed"
+                                                            style={{ color: 'var(--text-stone)' }}
+                                                        >
+                                                            {msg.conciergeMeta.gapBuild.build_result.codex_summary_plain}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
+                        ))}
+
+                        {/* SYNTHETIC QUEUE ROWS */}
+                        {localQueueItems.map(item => (
+                            <QueueStatusCard key={`q-${item.id}`} item={item} onRetry={handleRetryQueueItem} />
                         ))}
 
                         {/* INTELLIGENCE thinking row */}
@@ -866,7 +1364,7 @@ export default function ChatPortal() {
                                 <button
                                     type="button"
                                     onClick={() => folderInputRef.current?.click()}
-                                    disabled={busy || uploadingFiles}
+                                    disabled={!user || busy || uploadingFiles || deviceStatus?.queue_depth >= 50}
                                     title="Add a folder"
                                     aria-label="Add a folder"
                                     className="inline-flex items-center justify-center w-10 h-10 border transition-colors"
@@ -874,7 +1372,7 @@ export default function ChatPortal() {
                                         borderColor: dragActive ? 'var(--border-focus)' : 'var(--border-hairline)',
                                         color: 'var(--text-shadow)',
                                         background: 'transparent',
-                                        opacity: (busy || uploadingFiles) ? 0.5 : 1,
+                                        opacity: (!user || busy || uploadingFiles || deviceStatus?.queue_depth >= 50) ? 0.5 : 1,
                                     }}
                                 >
                                     <PlusIcon />
@@ -882,7 +1380,7 @@ export default function ChatPortal() {
                                 <button
                                     type="button"
                                     onClick={() => fileInputRef.current?.click()}
-                                    disabled={busy || uploadingFiles}
+                                    disabled={!user || busy || uploadingFiles || deviceStatus?.queue_depth >= 50}
                                     title="Attach files"
                                     aria-label="Attach files"
                                     className="inline-flex items-center justify-center w-10 h-10 border transition-colors"
@@ -890,7 +1388,7 @@ export default function ChatPortal() {
                                         borderColor: dragActive ? 'var(--border-focus)' : 'var(--border-hairline)',
                                         color: 'var(--text-shadow)',
                                         background: 'transparent',
-                                        opacity: (busy || uploadingFiles) ? 0.5 : 1,
+                                        opacity: (!user || busy || uploadingFiles || deviceStatus?.queue_depth >= 50) ? 0.5 : 1,
                                     }}
                                 >
                                     <AttachmentIcon />
@@ -906,8 +1404,12 @@ export default function ChatPortal() {
                                         void handleExecute();
                                     }
                                 }}
-                                disabled={busy || uploadingFiles}
-                                placeholder={pendingAttachments.length ? 'Ask Northern to analyze the attached files…' : 'Type a message...'}
+                                disabled={!user || busy || uploadingFiles || deviceStatus?.queue_depth >= 50}
+                                placeholder={
+                                    !user ? 'Sign in to send a message' :
+                                        deviceStatus?.queue_depth >= 50 ? 'Queue limit reached (max 50). Please wait.' :
+                                            pendingAttachments.length ? 'Ask Northern to analyze the attached files…' : 'Type a message...'
+                                }
                                 rows={1}
                                 spellCheck={false}
                                 className="w-full border-none focus:outline-none resize-none py-2 max-h-[35vh] scroll-smooth leading-snug"
@@ -918,21 +1420,21 @@ export default function ChatPortal() {
                                     letterSpacing: '-0.02em',
                                     color: 'var(--text-bone)',
                                     caretColor: 'var(--text-bone)',
-                                    opacity: (busy || uploadingFiles) ? 0.3 : 1,
+                                    opacity: (!user || busy || uploadingFiles || deviceStatus?.queue_depth >= 50) ? 0.3 : 1,
                                 }}
                             />
                             <button
                                 type="submit"
-                                disabled={(!input.trim() && pendingAttachments.length === 0) || busy || uploadingFiles}
+                                disabled={!user || (!input.trim() && pendingAttachments.length === 0) || busy || uploadingFiles || deviceStatus?.queue_depth >= 50}
                                 className="shrink-0 p-4 border transition-all duration-300"
                                 style={{
-                                    borderColor: (input.trim() || pendingAttachments.length > 0) && !busy && !uploadingFiles
+                                    borderColor: user && (input.trim() || pendingAttachments.length > 0) && !busy && !uploadingFiles && (deviceStatus?.queue_depth || 0) < 50
                                         ? 'rgba(255,255,255,0.35)'
                                         : 'rgba(255,255,255,0.2)',
                                     color: 'var(--text-bone)',
                                     background: 'var(--bg-carbon)',
-                                    opacity: (!input.trim() && pendingAttachments.length === 0) || busy || uploadingFiles ? 0 : 1,
-                                    pointerEvents: (!input.trim() && pendingAttachments.length === 0) || busy || uploadingFiles ? 'none' : 'auto',
+                                    opacity: (!user || (!input.trim() && pendingAttachments.length === 0) || busy || uploadingFiles || deviceStatus?.queue_depth >= 50) ? 0 : 1,
+                                    pointerEvents: (!user || (!input.trim() && pendingAttachments.length === 0) || busy || uploadingFiles || deviceStatus?.queue_depth >= 50) ? 'none' : 'auto',
                                 }}>
                                 →
                             </button>
@@ -947,6 +1449,8 @@ export default function ChatPortal() {
                     </div>
                 </form>
             </div>
+
+            <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} />
         </div>
     );
 }

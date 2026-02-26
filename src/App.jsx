@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ChatPortal from './pages/ChatPortal';
 import PersonalityOnboarding from './pages/PersonalityOnboarding';
 import Settings from './pages/Settings';
@@ -8,17 +8,22 @@ import IndividualsPage from './pages/IndividualsPage';
 import IntegrationsPage from './pages/IntegrationsPage';
 import StoriesPage from './pages/StoriesPage';
 import NewsPage from './pages/NewsPage';
+import ArticlePage from './pages/ArticlePage';
 import SolutionsPage from './pages/SolutionsPage';
+import LoginPage from './pages/LoginPage';
+import DeviceSetupPage from './pages/DeviceSetupPage';
 import Footer from './components/Footer';
+import { useAuth } from './hooks/useAuth';
+import { useSettings } from './hooks/useSettings';
 
 // ─── Starfield ────────────────────────────────────────────────────────────────
 const Starfield = () => {
   const snorthern = useMemo(() => {
-    return Array.from({ length: 80 }).map((_, i) => ({
+    return Array.from({ length: 180 }).map((_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 1.5 + 0.5,
+      size: Math.random() * 2.5 + 0.8,
       delay: Math.random() * 6,
       duration: Math.random() * 4 + 3,
     }));
@@ -29,7 +34,7 @@ const Starfield = () => {
       {snorthern.map((star) => (
         <div
           key={star.id}
-          className="absolute rounded-full bg-[var(--text-stone)]"
+          className="absolute rounded-full bg-[var(--text-bone)]"
           style={{
             left: `${star.x}%`,
             top: `${star.y}%`,
@@ -45,16 +50,18 @@ const Starfield = () => {
 
 // ─── AgentSymbol ──────────────────────────────────────────────────────────────
 const AgentSymbol = () => (
-  <div className="relative inline-flex items-center justify-center w-16 h-20 group select-none z-10">
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(242,240,237,0.2)_0%,transparent_60%)] blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
-    <svg viewBox="0 0 64 64" className="w-full h-full overflow-visible" aria-label="NORTHERN Agentic Symbol">
-      <rect x="10" y="24" width="8" height="16" fill="var(--text-stone)" className="opacity-70 transition-all duration-700 group-hover:opacity-100" />
-      <rect x="22" y="12" width="8" height="40" fill="var(--text-stone)" className="opacity-70 transition-all duration-700 group-hover:opacity-100" />
-      <rect x="34" y="6" width="8" height="40" fill="var(--text-bone)" style={{ animation: 'agentic-float 4s ease-in-out infinite', filter: 'drop-shadow(0 0 8px rgba(242, 240, 237, 0.4))' }} />
-      <rect x="46" y="24" width="8" height="16" fill="var(--text-stone)" className="opacity-70 transition-all duration-700 group-hover:opacity-100" />
-      <path d="M 0 0 L 4 0 M 0 0 L 0 4" stroke="var(--text-stone)" strokeWidth="1" fill="none" className="opacity-40" />
-      <path d="M 64 64 L 60 64 M 64 64 L 64 60" stroke="var(--text-stone)" strokeWidth="1" fill="none" className="opacity-40" />
-    </svg>
+  <div className="relative inline-flex items-center justify-center p-6 bg-white rounded-2xl shadow-[0_0_60px_rgba(242,240,237,0.15)] group select-none z-10 transition-transform hover:scale-[1.02]">
+    <div className="w-16 h-20 relative">
+      <svg viewBox="0 0 64 64" className="w-full h-full overflow-visible" aria-label="NORTHERN Agentic Symbol">
+        {/* Changed colors to dark to contrast with the new white background */}
+        <rect x="10" y="24" width="8" height="16" fill="#78716c" className="opacity-70 transition-all duration-700 group-hover:opacity-100" />
+        <rect x="22" y="12" width="8" height="40" fill="#78716c" className="opacity-70 transition-all duration-700 group-hover:opacity-100" />
+        <rect x="34" y="6" width="8" height="40" fill="#070707" style={{ animation: 'agentic-float 4s ease-in-out infinite', filter: 'drop-shadow(0 0 8px rgba(0, 0, 0, 0.4))' }} />
+        <rect x="46" y="24" width="8" height="16" fill="#78716c" className="opacity-70 transition-all duration-700 group-hover:opacity-100" />
+        <path d="M 0 0 L 4 0 M 0 0 L 0 4" stroke="#78716c" strokeWidth="1" fill="none" className="opacity-40" />
+        <path d="M 64 64 L 60 64 M 64 64 L 64 60" stroke="#78716c" strokeWidth="1" fill="none" className="opacity-40" />
+      </svg>
+    </div>
   </div>
 );
 
@@ -108,7 +115,7 @@ const CircularMenu = () => {
         <defs>
           <path id="menu-curve" d="M 80 252 A 760 760 0 0 1 1120 252" />
         </defs>
-        <text className="font-['JetBrains_Mono'] text-[9px] md:text-[11px] tracking-[0.25em] md:tracking-[0.4em] uppercase" fill="var(--text-stone)">
+        <text className="font-['JetBrains_Mono'] text-[9px] md:text-[11px] tracking-[0.25em] md:tracking-[0.4em] uppercase" fill="var(--text-bone)">
           <textPath href="#menu-curve" startOffset="50%" textAnchor="middle">
             {menuItems.map((item, index) => {
               const isHovered = hoveredIndex === index;
@@ -117,8 +124,8 @@ const CircularMenu = () => {
                   <tspan
                     className="cursor-pointer pointer-events-auto"
                     style={{
-                      fill: isHovered ? 'var(--text-bone)' : hoveredIndex !== null ? 'rgba(120, 113, 108, 0.4)' : 'var(--text-stone)',
-                      filter: isHovered ? 'drop-shadow(0 0 8px rgba(242,240,237,0.8))' : 'none',
+                      fill: isHovered ? '#ffffff' : hoveredIndex !== null ? 'rgba(242, 240, 237, 0.4)' : '#f2f0ed', // Much brighter default text
+                      filter: isHovered ? 'drop-shadow(0 0 12px rgba(255,255,255,1))' : 'drop-shadow(0 0 4px rgba(242,240,237,0.3))', // Added baseline glow
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                     onClick={() => { window.location.href = item.href; }}
@@ -128,7 +135,7 @@ const CircularMenu = () => {
                     {item.label}
                   </tspan>
                   {index < menuItems.length - 1 && (
-                    <tspan style={{ fill: 'var(--text-stone)', opacity: hoveredIndex !== null ? 0.2 : 0.4, transition: 'opacity 0.4s ease', pointerEvents: 'none' }}>
+                    <tspan style={{ fill: 'var(--text-bone)', opacity: hoveredIndex !== null ? 0.3 : 0.6, transition: 'opacity 0.4s ease', pointerEvents: 'none' }}>
                       {'\u00A0\u00A0\u00A0\u00A0 · \u00A0\u00A0\u00A0\u00A0'}
                     </tspan>
                   )}
@@ -201,23 +208,16 @@ function WelcomePage() {
             <div className="hidden md:block w-[1px] h-20 bg-gradient-to-b from-transparent via-[var(--text-stone)] to-transparent opacity-30 group-hover:opacity-70 transition-opacity duration-700" />
             <NorthernLogo />
           </div>
-          {/* Sub-brand label */}
-          <p className="text-[11px] tracking-[0.4em] uppercase text-[var(--text-stone)] opacity-60 mt-2">
-            Personal AI Orchestrator
-          </p>
         </div>
 
         {/* CTA */}
-        <div className="relative z-10 flex flex-col items-center text-center gap-4 mt-10 w-full px-6" style={{ animation: 'cta-rise 1.2s ease-out 0.6s both' }}>
+        <div className="relative z-10 flex flex-col items-center text-center gap-4 mt-10 w-full px-6" style={{ animation: 'cta-rise 1.2s ease-out 0.6s both', paddingLeft: '5rem' }}>
           <a
             href="/chat"
             className="mx-auto block bg-[var(--text-bone)] text-[#070707] font-semibold px-14 py-4 rounded-xl text-sm tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:shadow-[0_0_40px_rgba(242,240,237,0.25)] active:scale-[0.98]"
           >
-            Open NORTHERN
+            Open Chat
           </a>
-          <p className="text-[11px] text-[var(--text-stone)]/50 tracking-[0.2em] uppercase">
-            Free · No account required
-          </p>
         </div>
 
         {/* Arc Menu — bottom of hero viewport */}
@@ -254,6 +254,23 @@ function WelcomePage() {
   );
 }
 
+// ─── Protected Route Wrapper ──────────────────────────────────────────────────
+function RequireAuth({ children }) {
+  const { settings } = useSettings();
+  const apiBase = (settings?.apiBaseUrl || '').replace(/\/+$/, '') || '/api';
+  const { user, loading } = useAuth(apiBase, false);
+  const location = useLocation();
+
+  if (loading) return null; // Wait for initial check
+
+  if (!user) {
+    const next = encodeURIComponent(location.pathname + (location.search || ''));
+    return <Navigate to={`/login?next=${next}`} replace />;
+  }
+
+  return children;
+}
+
 // ─── App Router ───────────────────────────────────────────────────────────────
 export default function App() {
   return (
@@ -266,6 +283,9 @@ export default function App() {
         <Route path="/integrations" element={<IntegrationsPage />} />
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/:id" element={<ArticlePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/connect" element={<RequireAuth><DeviceSetupPage /></RequireAuth>} />
         <Route path="/chat" element={<ChatPortal />} />
         <Route path="/onboarding" element={<PersonalityOnboarding />} />
         <Route path="/settings" element={<Settings />} />

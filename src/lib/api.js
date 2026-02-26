@@ -74,8 +74,9 @@ export async function requestJson(base, path, init = {}) {
 
     if (!response.ok) {
         const detail = parsed?.detail || parsed?.message || `Request failed (${response.status})`;
-        const error = new Error(String(detail));
+        const error = new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
         error.status = response.status;
+        error.payload = parsed;
         throw error;
     }
 
