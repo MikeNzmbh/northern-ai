@@ -397,6 +397,7 @@ export default function ChatPortal() {
     const [uploadingFiles, setUploadingFiles] = useState(false);
     const [dragActive, setDragActive] = useState(false);
     const [busy, setBusy] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [thinkTs, setThinkTs] = useState(null);
     const [conciergeUiByRun, setConciergeUiByRun] = useState({});
 
@@ -912,57 +913,123 @@ export default function ChatPortal() {
             <span className="fixed bottom-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
 
             {/* ── Header ── */}
-            <header className="w-full px-6 md:px-12 py-8 flex flex-col md:flex-row justify-between items-start md:items-center relative z-10">
-                <div className="flex flex-col gap-1 mb-6 md:mb-0">
-                    <h1 className="text-xl font-light tracking-tight" style={{ color: 'var(--text-shadow)' }}>NORTHERN Chat</h1>
-                    <span className="mono-meta" style={{ color: 'var(--text-stone)' }}>
-                        Studio build
-                    </span>
+            <header className="w-full px-6 md:px-12 py-6 relative z-10" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                {/* Mobile header row */}
+                <div className="flex items-center justify-between md:hidden">
+                    <div className="flex flex-col gap-0.5">
+                        <h1 className="text-base font-light tracking-tight" style={{ color: 'var(--text-shadow)' }}>NORTHERN Chat</h1>
+                        <span className="mono-meta" style={{ color: 'var(--text-stone)', fontSize: 9 }}>Studio build</span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setMobileMenuOpen(prev => !prev)}
+                        aria-label="Toggle menu"
+                        className="mono-meta px-2 py-1.5 border transition-colors"
+                        style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-stone)' }}
+                    >
+                        {mobileMenuOpen ? '✕' : '≡'}
+                    </button>
                 </div>
 
-                {/* Telemetry + Nav */}
-                <div className="flex items-center gap-6 md:gap-10 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-                    {/* Telemetry */}
-                    <div className="flex items-center gap-8 mono-meta" style={{ color: 'var(--text-stone)' }}>
-                        <div className="flex flex-col gap-0.5 items-end">
-                            <span>CLOCK</span>
-                            <span style={{ color: 'var(--text-shadow)' }}>{tel.hz} MHZ</span>
+                {/* Mobile dropdown */}
+                {mobileMenuOpen && (
+                    <div className="md:hidden mt-4 pt-4 flex flex-col gap-4" style={{ borderTop: '1px solid var(--border-hairline)' }}>
+                        {/* Telemetry */}
+                        <div className="flex items-center gap-6 mono-meta" style={{ color: 'var(--text-stone)' }}>
+                            <div className="flex flex-col gap-0.5">
+                                <span>CLOCK</span>
+                                <span style={{ color: 'var(--text-shadow)' }}>{tel.hz} MHZ</span>
+                            </div>
+                            <div className="flex flex-col gap-0.5">
+                                <span>TEMP</span>
+                                <span style={{ color: 'var(--text-shadow)' }}>{tel.temp.toFixed(1)} °C</span>
+                            </div>
+                            <div className="flex flex-col gap-0.5">
+                                <span>STATUS</span>
+                                <span style={{ color: status === 'COMPUTING' ? 'var(--text-ink)' : 'var(--text-stone)' }}
+                                    className={status === 'COMPUTING' ? 'animate-pulse' : ''}>
+                                    {status}
+                                </span>
+                            </div>
+                            <DeviceStatusBadge status={deviceStatus} />
                         </div>
-                        <div className="flex flex-col gap-0.5 items-end">
-                            <span>CORE_TEMP</span>
-                            <span style={{ color: 'var(--text-shadow)' }}>{tel.temp.toFixed(1)} °C</span>
+                        {/* Nav */}
+                        <div className="flex flex-wrap gap-2">
+                            {[
+                                { label: 'New session', onClick: startNew },
+                                { label: 'Personality', to: '/onboarding' },
+                                { label: 'Settings', to: '/settings' },
+                                { label: 'Home', to: '/' },
+                                ...(user ? [{ label: 'Logout', onClick: logout }] : [{ label: 'Sign in', onClick: () => window.location.href = '/login?next=/chat' }])
+                            ].map(item => item.to ? (
+                                <Link key={item.label} to={item.to}
+                                    className="mono-meta px-3 py-1.5 border transition-colors"
+                                    style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-stone)' }}
+                                    onClick={() => setMobileMenuOpen(false)}>
+                                    {item.label}
+                                </Link>
+                            ) : (
+                                <button key={item.label} type="button" onClick={() => { item.onClick(); setMobileMenuOpen(false); }}
+                                    className="mono-meta px-3 py-1.5 border transition-colors"
+                                    style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-stone)' }}>
+                                    {item.label}
+                                </button>
+                            ))}
                         </div>
-                        <div className="flex flex-col gap-0.5 items-end">
-                            <span>STATUS</span>
-                            <span style={{ color: status === 'COMPUTING' ? 'var(--text-ink)' : 'var(--text-stone)' }}
-                                className={status === 'COMPUTING' ? 'animate-pulse' : ''}>
-                                {status}
-                            </span>
-                        </div>
-                        <DeviceStatusBadge status={deviceStatus} />
+                    </div>
+                )}
+
+                {/* Desktop header row */}
+                <div className="hidden md:flex justify-between items-center">
+                    <div className="flex flex-col gap-1">
+                        <h1 className="text-xl font-light tracking-tight" style={{ color: 'var(--text-shadow)' }}>NORTHERN Chat</h1>
+                        <span className="mono-meta" style={{ color: 'var(--text-stone)' }}>Studio build</span>
                     </div>
 
-                    {/* Nav actions */}
-                    <div className="flex items-center gap-1 shrink-0">
-                        {[
-                            { label: 'New session', onClick: startNew },
-                            { label: 'Personality', to: '/onboarding' },
-                            { label: 'Settings', to: '/settings' },
-                            { label: 'Home', to: '/' },
-                            ...(user ? [{ label: 'Logout', onClick: logout }] : [{ label: 'Sign in', onClick: () => window.location.href = '/login?next=/chat' }])
-                        ].map(item => item.to ? (
-                            <Link key={item.label} to={item.to}
-                                className="mono-meta px-3 py-1.5 transition-colors hover:opacity-80"
-                                style={{ color: 'var(--text-stone)', borderBottom: '1px solid transparent' }}>
-                                {item.label}
-                            </Link>
-                        ) : (
-                            <button key={item.label} type="button" onClick={item.onClick}
-                                className="mono-meta px-3 py-1.5 border transition-colors"
-                                style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-stone)' }}>
-                                {item.label}
-                            </button>
-                        ))}
+                    {/* Telemetry + Nav */}
+                    <div className="flex items-center gap-10">
+                        {/* Telemetry */}
+                        <div className="flex items-center gap-8 mono-meta" style={{ color: 'var(--text-stone)' }}>
+                            <div className="flex flex-col gap-0.5 items-end">
+                                <span>CLOCK</span>
+                                <span style={{ color: 'var(--text-shadow)' }}>{tel.hz} MHZ</span>
+                            </div>
+                            <div className="flex flex-col gap-0.5 items-end">
+                                <span>CORE_TEMP</span>
+                                <span style={{ color: 'var(--text-shadow)' }}>{tel.temp.toFixed(1)} °C</span>
+                            </div>
+                            <div className="flex flex-col gap-0.5 items-end">
+                                <span>STATUS</span>
+                                <span style={{ color: status === 'COMPUTING' ? 'var(--text-ink)' : 'var(--text-stone)' }}
+                                    className={status === 'COMPUTING' ? 'animate-pulse' : ''}>
+                                    {status}
+                                </span>
+                            </div>
+                            <DeviceStatusBadge status={deviceStatus} />
+                        </div>
+
+                        {/* Nav actions */}
+                        <div className="flex items-center gap-1 shrink-0">
+                            {[
+                                { label: 'New session', onClick: startNew },
+                                { label: 'Personality', to: '/onboarding' },
+                                { label: 'Settings', to: '/settings' },
+                                { label: 'Home', to: '/' },
+                                ...(user ? [{ label: 'Logout', onClick: logout }] : [{ label: 'Sign in', onClick: () => window.location.href = '/login?next=/chat' }])
+                            ].map(item => item.to ? (
+                                <Link key={item.label} to={item.to}
+                                    className="mono-meta px-3 py-1.5 transition-colors hover:opacity-80"
+                                    style={{ color: 'var(--text-stone)', borderBottom: '1px solid transparent' }}>
+                                    {item.label}
+                                </Link>
+                            ) : (
+                                <button key={item.label} type="button" onClick={item.onClick}
+                                    className="mono-meta px-3 py-1.5 border transition-colors"
+                                    style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-stone)' }}>
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </header>
