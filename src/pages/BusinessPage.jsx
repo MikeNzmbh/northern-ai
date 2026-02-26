@@ -42,11 +42,11 @@ export default function BusinessPage() {
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
                     NORTHERN Home
                 </a>
-                <div className="flex items-center gap-4 text-sm font-medium">
+                <div className="flex items-center gap-3 md:gap-4 text-sm font-medium">
                     <a href="/chat" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1 group">
                         Open Chat <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </a>
-                    <a href="mailto:sales@northern.ai" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1 group">
+                    <a href="mailto:sales@northern.ai" className="hidden sm:flex text-zinc-400 hover:text-white transition-colors items-center gap-1 group">
                         Contact sales <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </a>
                 </div>

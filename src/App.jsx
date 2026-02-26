@@ -214,7 +214,7 @@ function WelcomePage() {
         </div>
 
         {/* CTA */}
-        <div className="relative z-10 flex flex-col items-center text-center gap-4 mt-10 w-full px-6" style={{ animation: 'cta-rise 1.2s ease-out 0.6s both', paddingLeft: '5rem' }}>
+        <div className="relative z-10 flex flex-col items-center text-center gap-4 mt-10 w-full px-6" style={{ animation: 'cta-rise 1.2s ease-out 0.6s both' }}>
           <a
             href="/chat"
             className="mx-auto block bg-[var(--text-bone)] text-[#070707] font-semibold px-14 py-4 rounded-xl text-sm tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:shadow-[0_0_40px_rgba(242,240,237,0.25)] active:scale-[0.98]"

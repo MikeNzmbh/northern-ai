@@ -103,7 +103,7 @@ export default function ArticlePage() {
                             {article.summary}
                         </p>
 
-                        <div className="flex items-center justify-between py-6 border-y border-zinc-800 mt-4">
+                        <div className="flex flex-wrap items-center justify-between gap-4 py-6 border-y border-zinc-800 mt-4">
                             <div className="flex items-center gap-4">
                                 <img src={article.author.image} alt={article.author.name} className="w-12 h-12 rounded-full object-cover border border-zinc-700 filter grayscale" />
                                 <div>
@@ -111,7 +111,7 @@ export default function ArticlePage() {
                                     <div className="text-sm text-zinc-500">{article.author.role}</div>
                                 </div>
                             </div>
-                            <div className="text-right hidden sm:block">
+                            <div>
                                 <div className="text-sm font-medium text-zinc-300">{article.date}</div>
                                 <div className="flex items-center gap-3 mt-2 text-zinc-500">
                                     <button className="hover:text-white transition-colors"><Twitter className="w-4 h-4" /></button>
@@ -169,7 +169,7 @@ export default function ArticlePage() {
                     </article>
 
                     {/* Footer Share */}
-                    <div className="mt-16 pt-8 border-t border-zinc-800 flex items-center justify-between">
+                    <div className="mt-16 pt-8 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-4">
                         <div className="text-zinc-400 font-medium">Share this article</div>
                         <div className="flex gap-3">
                             <button className="flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-700 bg-zinc-900 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors">
