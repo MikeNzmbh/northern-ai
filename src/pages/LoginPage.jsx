@@ -53,7 +53,7 @@ export default function LoginPage() {
             <span className="fixed bottom-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
             <span className="fixed bottom-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
 
-            <div className="w-full max-w-[520px] -mt-24 md:-mt-40 animate-reveal">
+            <div className="w-full max-w-[520px] animate-reveal">
 
                 {error && (
                     <div className="mb-6 border border-[var(--border-hairline)] px-4 py-3 mono-meta text-[var(--text-shadow)]" aria-live="polite">
@@ -68,61 +68,61 @@ export default function LoginPage() {
 
                 <form
                     onSubmit={handleSubmit}
-                    className="border border-[var(--border-hairline)] p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-12 w-full"
+                    className="border border-[var(--border-hairline)] p-6 md:p-8 flex flex-col gap-6 w-full"
                     style={{ background: 'rgba(255,255,255,0.01)' }}
                 >
-                    <div className="flex flex-col gap-6 md:w-32 shrink-0 mono-meta text-[var(--text-stone)] pt-2 select-none">
-                        <label htmlFor="email">EMAIL</label>
-                        <label htmlFor="password">PASSWORD</label>
-                    </div>
-
-                    <div className="flex-1 flex flex-col gap-6 relative z-20">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center relative z-20">
+                        <label htmlFor="email" className="mono-meta text-[var(--text-stone)] text-xs md:w-32 shrink-0 pt-1">EMAIL</label>
                         <input
                             id="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             disabled={loading}
-                            className="w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
+                            className="flex-1 w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
                         />
+                    </div>
+
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center relative z-20">
+                        <label htmlFor="password" className="mono-meta text-[var(--text-stone)] text-xs md:w-32 shrink-0 pt-1">PASSWORD</label>
                         <input
                             id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
-                            className="w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
+                            className="flex-1 w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
                         />
+                    </div>
 
-                        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-                            <button
-                                type="submit"
-                                disabled={loading || !email || !password}
-                                className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors disabled:opacity-50 w-full sm:w-auto flex items-center justify-center gap-2"
-                            >
-                                {loading ? (
-                                    <>Signing in<span className="w-1.5 h-3 bg-[var(--text-bone)] animate-pulse inline-block align-middle" /></>
-                                ) : (
-                                    'Sign in →'
-                                )}
-                            </button>
-
-                            {PUBLIC_SIGNUP_ENABLED && (
-                                <Link
-                                    to={`/signup?next=${encodeURIComponent(nextParams)}`}
-                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
-                                >
-                                    Create account →
-                                </Link>
+                    <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-6 w-full relative z-20">
+                        <button
+                            type="submit"
+                            disabled={loading || !email || !password}
+                            className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors disabled:opacity-50 w-full sm:w-auto flex items-center justify-center gap-2"
+                        >
+                            {loading ? (
+                                <>Signing in<span className="w-1.5 h-3 bg-[var(--text-bone)] animate-pulse inline-block align-middle" /></>
+                            ) : (
+                                'Sign in →'
                             )}
-                        </div>
+                        </button>
+
+                        {PUBLIC_SIGNUP_ENABLED && (
+                            <Link
+                                to={`/signup?next=${encodeURIComponent(nextParams)}`}
+                                className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
+                            >
+                                Continue with Google →
+                            </Link>
+                        )}
                     </div>
                 </form>
 
                 <div className="mt-8 text-center text-[var(--text-shadow)] mono-meta">
                     {!PUBLIC_SIGNUP_ENABLED && "Don't have access? Contact your administrator."}
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

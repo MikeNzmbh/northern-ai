@@ -1,21 +1,36 @@
 <svg viewBox="0 0 128 128" width="512" height="512" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <filter id="boxShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.1" />
+    <!-- Subtle glow for the pure white bar -->
+    <filter id="glowWhite" x="-50%" y="-20%" width="200%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
     </filter>
   </defs>
+
+  <!-- Deep dark background stretched closer to the edge for better favicon visibility -->
+  <rect x="0" y="0" width="128" height="128" rx="28" fill="#0c0c0c" stroke="#1f1f22" stroke-width="2" />
   
-  <!-- Outer white box -->
-  <rect x="8" y="8" width="112" height="112" rx="24" fill="#ffffff" filter="url(#boxShadow)" />
-  
-  <!-- Inner symbol -->
-  <g transform="translate(32, 32)">
+  <!-- Inner symbol scaled up 1.5x (from 64x64 to 96x96) and centered -->
+  <g transform="translate(16, 16) scale(1.5)">
+    <!-- Small left gray bar -->
     <rect x="10" y="24" width="8" height="16" fill="#78716c" />
+    
+    <!-- Tall left gray bar -->
     <rect x="22" y="12" width="8" height="40" fill="#78716c" />
-    <rect x="34" y="6" width="8" height="40" fill="#070707" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.4))" />
+    
+    <!-- Tall white glowing bar (The main accent) -->
+    <rect x="34" y="6" width="8" height="40" fill="#f4f4f5" filter="url(#glowWhite)" />
+    
+    <!-- Small right gray bar -->
     <rect x="46" y="24" width="8" height="16" fill="#78716c" />
     
-    <path d="M 0 0 L 6 0 M 0 0 L 0 6" stroke="#78716c" stroke-width="2" fill="none" opacity="0.5" />
-    <path d="M 64 64 L 58 64 M 64 64 L 64 58" stroke="#78716c" stroke-width="2" fill="none" opacity="0.5" />
+    <!-- Top Left Bracket bracket -->
+    <path d="M 0 0 L 8 0 M 0 0 L 0 8" stroke="#4a4a4f" stroke-width="1.5" fill="none" opacity="0.6" />
+    
+    <!-- Bottom Right Bracket -->
+    <path d="M 64 64 L 56 64 M 64 64 L 64 56" stroke="#4a4a4f" stroke-width="1.5" fill="none" opacity="0.6" />
   </g>
 </svg>
