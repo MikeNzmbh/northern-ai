@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import ChatPortal from './pages/ChatPortal';
 import PersonalityOnboarding from './pages/PersonalityOnboarding';
 import Settings from './pages/Settings';
@@ -291,6 +292,7 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<WelcomePage />} />
       </Routes>
+      <Analytics />
     </BrowserRouter>
   );
 }
