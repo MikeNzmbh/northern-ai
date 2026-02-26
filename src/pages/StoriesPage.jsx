@@ -12,7 +12,7 @@ export default function StoriesPage() {
                 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
             `}</style>
 
-            <Navbar title="TARS Stories" />
+            <Navbar title="NORTHERN Stories" />
 
             <div className="pt-32 px-6 max-w-[1400px] mx-auto w-full flex-1">
                 <main className="flex flex-col mb-24">
@@ -23,10 +23,10 @@ export default function StoriesPage() {
                             WHAT BECOMES POSSIBLE
                         </div>
                         <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-8 leading-[1.05]">
-                            What people do with TARS.
+                            What people do with NORTHERN.
                         </h1>
                         <p className="text-zinc-400 text-lg md:text-xl leading-relaxed">
-                            Examples of how teams and individuals use TARS for research, coding, and operations.
+                            Examples of how teams and individuals use NORTHERN for research, coding, and operations.
                         </p>
                     </div>
 
@@ -38,7 +38,7 @@ export default function StoriesPage() {
                                 "Two hours of my morning back. Every single day."
                             </blockquote>
                             <p className="text-zinc-400 text-lg leading-relaxed max-w-3xl mb-8">
-                                TARS can run overnight, collect updates from multiple sources, and deliver a clean morning brief with references. No tab juggling required.
+                                NORTHERN can run overnight, collect updates from multiple sources, and deliver a clean morning brief with references. No tab juggling required.
                             </p>
 
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-8 border-t border-zinc-800">
@@ -74,7 +74,7 @@ export default function StoriesPage() {
                             <div>
                                 <div className="text-[11px] font-bold tracking-[0.2em] text-zinc-500 mb-6">INDEPENDENT DEVELOPER</div>
                                 <blockquote className="text-2xl md:text-3xl font-light text-white leading-snug mb-6">
-                                    "I gave TARS a GitHub repo with 50 open issues. It queued 12 PRs for my approval. Like a senior engineer on retainer."
+                                    "I gave NORTHERN a GitHub repo with 50 open issues. It queued 12 PRs for my approval. Like a senior engineer on retainer."
                                 </blockquote>
                             </div>
                             <p className="text-zinc-400 text-md">From issue triage to draft pull request in minutes.</p>
@@ -87,12 +87,12 @@ export default function StoriesPage() {
                             <div className="lg:col-span-5">
                                 <div className="text-[11px] font-bold tracking-[0.2em] text-zinc-500 mb-6">BUSINESS OPERATOR</div>
                                 <blockquote className="text-3xl md:text-4xl font-light text-white leading-tight">
-                                    "TARS handles our email triage, meeting prep briefs, and outreach queues. My team ships twice as fast."
+                                    "NORTHERN handles our email triage, meeting prep briefs, and outreach queues. My team ships twice as fast."
                                 </blockquote>
                             </div>
                             <div className="lg:col-span-7">
                                 <p className="text-zinc-400 text-lg leading-relaxed bg-[#111] p-8 rounded-2xl border border-zinc-800/50">
-                                    TARS can sort incoming requests, draft replies, and hold them for review before anything is sent. The operator checks the draft and approves when ready.
+                                    NORTHERN can sort incoming requests, draft replies, and hold them for review before anything is sent. The operator checks the draft and approves when ready.
                                 </p>
                             </div>
                         </div>

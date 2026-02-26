@@ -23,7 +23,7 @@ const useCases = [
     },
     {
         title: 'Coding',
-        desc: 'Build, debug, and ship faster. TARS can help review code, draft changes, and work through older codebases step by step.',
+        desc: 'Build, debug, and ship faster. NORTHERN can help review code, draft changes, and work through older codebases step by step.',
         icon: <Code className="w-5 h-5 text-emerald-300" />,
         color: 'bg-emerald-500/10 border-emerald-500/20',
         iconBg: 'bg-emerald-500/20',
@@ -37,7 +37,7 @@ const useCases = [
     },
     {
         title: 'Research',
-        desc: 'Gather and summarize information quickly. TARS can read long documents and pull out the parts you need.',
+        desc: 'Gather and summarize information quickly. NORTHERN can read long documents and pull out the parts you need.',
         icon: <Search className="w-5 h-5 text-amber-300" />,
         color: 'bg-amber-500/10 border-amber-500/20',
         iconBg: 'bg-amber-500/20',
@@ -108,10 +108,10 @@ export default function SolutionsPage() {
                         </p>
                         <div className="flex flex-wrap items-center justify-center gap-4">
                             <a href="/chat" className="bg-white text-black px-6 py-3 rounded-full text-sm font-medium hover:bg-zinc-200 transition-colors flex items-center gap-2 group">
-                                Try TARS for business
+                                Try NORTHERN for business
                                 <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                             </a>
-                            <a href="mailto:sales@tars.ai" className="bg-[#111] border border-white/10 text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
+                            <a href="mailto:sales@northern.ai" className="bg-[#111] border border-white/10 text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-white/10 transition-colors">
                                 Contact sales
                             </a>
                         </div>
@@ -121,7 +121,7 @@ export default function SolutionsPage() {
                     <div className="w-full mb-32">
                         <div className="max-w-[1600px] mx-auto px-6 mb-8">
                             <h2 className="text-2xl font-semibold tracking-tight text-white mb-2">Use cases</h2>
-                            <p className="text-zinc-500 text-sm">Practical ways teams can use TARS.</p>
+                            <p className="text-zinc-500 text-sm">Practical ways teams can use NORTHERN.</p>
                         </div>
                         <div className="w-full overflow-x-auto hide-scrollbar pl-6 pb-8">
                             <div className="flex gap-6 w-max pr-6">
@@ -170,7 +170,7 @@ export default function SolutionsPage() {
                                     AI you can use with confidence
                                 </h2>
                                 <p className="text-zinc-400 text-lg leading-relaxed mb-16">
-                                    Use TARS with clear approvals, access controls, and visibility into what it is doing and why.
+                                    Use NORTHERN with clear approvals, access controls, and visibility into what it is doing and why.
                                 </p>
                                 <div className="space-y-12">
                                     <div>
@@ -179,7 +179,7 @@ export default function SolutionsPage() {
                                             <h3 className="text-2xl font-semibold text-white">Connect your data</h3>
                                         </div>
                                         <p className="text-zinc-400 leading-relaxed mb-6">
-                                            Connect your internal docs, code, and data so TARS can answer with better context.
+                                            Connect your internal docs, code, and data so NORTHERN can answer with better context.
                                         </p>
                                         <div className="flex flex-wrap gap-4">
                                             <a href="/integrations" className="bg-white text-black px-5 py-2.5 rounded-full text-sm font-medium hover:bg-zinc-200 transition-colors">
@@ -196,7 +196,7 @@ export default function SolutionsPage() {
                                             <h3 className="text-2xl font-semibold text-white">Absolute privacy</h3>
                                         </div>
                                         <p className="text-zinc-400 leading-relaxed">
-                                            TARS will not train on your business data. You can use role-based access controls and local deployment options when needed.
+                                            NORTHERN will not train on your business data. You can use role-based access controls and local deployment options when needed.
                                         </p>
                                     </div>
                                 </div>

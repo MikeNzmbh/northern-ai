@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 
-export default function Navbar({ title = 'TARS Home', backLink = '/' }) {
+export default function Navbar({ title = 'NORTHERN Home', backLink = '/' }) {
     return (
         <nav className="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#070707]/95 backdrop-blur supports-[backdrop-filter]:bg-[#070707]/85">
             <a
@@ -21,7 +21,7 @@ export default function Navbar({ title = 'TARS Home', backLink = '/' }) {
                     <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </a>
                 <a
-                    href="mailto:sales@tars.ai"
+                    href="mailto:sales@northern.ai"
                     className="text-zinc-400 hover:text-white transition-colors group flex items-center gap-1"
                 >
                     Talk to us

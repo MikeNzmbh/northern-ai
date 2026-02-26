@@ -1,22 +1,22 @@
 /**
- * TARS Studio – Artifact Surface Components
+ * Northern Studio – Artifact Surface Components
  *
  * Generic, governance-free visual surfaces for displaying structured
- * TARS artifacts inline in the chat message thread.
+ * Northern artifacts inline in the chat message thread.
  *
  * Visual language ported from governance-workspace.tsx:
  *   gov-inline-artifact card  (rounded-xl, border-hairline, bg-white/55)
  *   BadgePill                 (text-[10px], uppercase, tracking letters)
  *
  * Usage:
- *   <TarsArtifactCard
+ *   <NorthernArtifactCard
  *     label="CONTEXT"           // required: top-left badge
  *     title="Session bootstrap" // required
  *     meta="repo · main"        // optional: secondary info
  *     delay={0}                 // optional animation stagger ms
  *   >
  *     {optional slot for action buttons or body content}
- *   </TarsArtifactCard>
+ *   </NorthernArtifactCard>
  */
 
 /** Small badge pill — matches the proposal badge style in the workspace */
@@ -32,7 +32,7 @@ export function StudioBadge({ children, className = '' }) {
 }
 
 /** Inline artifact card — mirrors gov-inline-artifact layout */
-export function TarsArtifactCard({ label, title, meta, delay = 0, children }) {
+export function NorthernArtifactCard({ label, title, meta, delay = 0, children }) {
     return (
         <div
             className="studio-artifact rounded-xl p-3 md:p-4"
@@ -73,12 +73,12 @@ export function TarsArtifactCard({ label, title, meta, delay = 0, children }) {
 }
 
 /** A vertical stack of artifact cards with staggered animations */
-export function TarsArtifactList({ artifacts }) {
+export function NorthernArtifactList({ artifacts }) {
     if (!artifacts || artifacts.length === 0) return null;
     return (
         <div className="mt-6 space-y-3">
             {artifacts.map((a, i) => (
-                <TarsArtifactCard
+                <NorthernArtifactCard
                     key={a.id ?? i}
                     label={a.label}
                     title={a.title}
@@ -100,7 +100,7 @@ export function TarsArtifactList({ artifacts }) {
                             {btn.label}
                         </button>
                     ))}
-                </TarsArtifactCard>
+                </NorthernArtifactCard>
             ))}
         </div>
     );

@@ -1,71 +1,37 @@
 import React from 'react';
-import { ArrowUpRight, Cpu, Network, ShieldCheck, Database, LayoutTemplate } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { ArrowUpRight } from 'lucide-react';
+
+const features = [
+    {
+        number: '01',
+        title: 'Memory that helps',
+        desc: 'NORTHERN remembers useful details from your past conversations and brings them back when relevant — so you repeat yourself less and follow-up work moves faster.',
+    },
+    {
+        number: '02',
+        title: 'Automated workflows',
+        desc: 'Describe what you want done. NORTHERN breaks it into steps, handles the routine parts, and pauses for your approval before anything important happens.',
+    },
+    {
+        number: '03',
+        title: 'Approval before action',
+        desc: 'Before sending a message, changing a file, or running any risky action, NORTHERN shows you exactly what it plans to do. You review it and decide.',
+    },
+    {
+        number: '04',
+        title: 'Works with multiple models',
+        desc: 'NORTHERN routes tasks across OpenAI, DeepSeek, Gemini, and local models automatically. You are never locked into one provider.',
+    },
+    {
+        number: '05',
+        title: 'Desktop first, browser option',
+        desc: 'Use the native desktop app for the full offline experience, or open the browser client for the same interface without any installation.',
+    },
+];
 
 export default function IndividualsPage() {
-    const features = [
-        {
-            icon: <Database className="w-6 h-6 text-blue-400" />,
-            title: 'Memory that helps',
-            desc: 'TARS can remember useful details from past chats and bring them back when you ask. That means less repeating yourself and faster follow-up work.',
-        },
-        {
-            icon: <Network className="w-6 h-6 text-purple-400" />,
-            title: 'Automated workflows',
-            desc: 'Describe what you want done and TARS can handle the steps for you. It pauses for approval before important actions so you stay in control.',
-        },
-        {
-            icon: <ShieldCheck className="w-6 h-6 text-emerald-400" />,
-            title: 'Approval before action',
-            desc: 'TARS asks for approval before sending messages, changing files, or running risky actions. You can review first and decide what happens next.',
-        },
-        {
-            icon: <Cpu className="w-6 h-6 text-amber-400" />,
-            title: 'Works with multiple models',
-            desc: 'TARS can route tasks across OpenAI, DeepSeek, Gemini, and local models. You are not locked to one provider.',
-        },
-        {
-            icon: <LayoutTemplate className="w-6 h-6 text-rose-400" />,
-            title: 'Desktop first, browser option',
-            desc: 'Use the desktop app for the full experience, or use the browser version if you want a simpler setup.',
-        },
-    ];
-
-    const pricing = [
-        {
-            tier: 'Student',
-            price: 'Free',
-            period: '',
-            note: 'Free access for verified students in the US and Canada.',
-            features: [
-                'Full conversational and workflow interface',
-                'All 9 specialist agents',
-                'Personality configuration',
-                'Standard tool and integration access',
-                'Requires verified .edu email',
-            ],
-            cta: 'Verify Student Status',
-            primary: false
-        },
-        {
-            tier: 'Operator',
-            price: '$5',
-            period: '/month',
-            note: 'For individuals who want the full TARS experience, including saved memory and automation features.',
-            features: [
-                'Everything in Student',
-                'Unlimited persistent memory',
-                'Automated daily research and intelligence briefs',
-                'All model routing unlocked (DeepSeek, OpenAI, Gemini)',
-                'Custom workflow and automation builder',
-                'Priority security patches',
-            ],
-            cta: 'Start for $5/mo',
-            primary: true
-        }
-    ];
-
     return (
         <div
             className="min-h-screen bg-[#000000] text-[#f4f4f5] selection:bg-zinc-800 overflow-x-hidden flex flex-col"
@@ -79,18 +45,19 @@ export default function IndividualsPage() {
 
             <div className="pt-32 px-6 max-w-[1600px] mx-auto w-full flex-1">
                 <main className="flex flex-col mb-24">
+
                     {/* Hero */}
-                    <div className="max-w-4xl mb-24">
+                    <div className="max-w-4xl mb-32">
                         <div className="inline-block px-3 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-bold tracking-[0.25em] text-white mb-6">
-                            PERSONAL RUNTIME
+                            FOR INDIVIDUALS
                         </div>
                         <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-8 leading-[1.05]">
                             Run real work.<br />Not just questions.
                         </h1>
-                        <p className="text-zinc-400 text-lg md:text-xl leading-relaxed max-w-2xl">
-                            TARS is an AI assistant built for real work. You can chat with it, connect tools, and let it help with multi-step tasks while you approve important actions.
+                        <p className="text-zinc-400 text-lg md:text-xl leading-relaxed max-w-2xl mb-10">
+                            NORTHERN is an AI built for people who want to get things done — not just generate text. Chat, automate, and review, all in one place.
                         </p>
-                        <div className="mt-10 flex flex-wrap gap-4">
+                        <div className="flex flex-wrap gap-4">
                             <a href="/chat" className="bg-white text-black px-6 py-3 rounded-full font-medium hover:bg-zinc-200 transition-colors flex items-center gap-2 group">
                                 Open Web Client
                                 <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -98,68 +65,118 @@ export default function IndividualsPage() {
                             <a href="#" className="bg-zinc-900 border border-zinc-800 text-white px-6 py-3 rounded-full font-medium hover:bg-zinc-800 transition-colors">
                                 Download for macOS
                             </a>
+                            <a href="#" className="bg-zinc-900 border border-zinc-800 text-white px-6 py-3 rounded-full font-medium hover:bg-zinc-800 transition-colors">
+                                Download for Windows
+                            </a>
                         </div>
                     </div>
 
-                    {/* Features List */}
-                    <div className="mb-32">
-                        <h2 className="text-xs font-bold tracking-[0.3em] text-zinc-500 mb-12 uppercase border-b border-zinc-800 pb-4">Quick start features</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {features.map((feature, idx) => (
-                                <div key={idx} className="bg-[#0a0a0a] border border-zinc-800 rounded-2xl p-8 hover:border-zinc-700 transition-colors">
-                                    <div className="mb-6 p-4 bg-black rounded-xl inline-block border border-zinc-900">
-                                        {feature.icon}
+                    {/* Features — Apple-style numbered cards */}
+                    <div className="mb-40">
+                        <p className="text-[10px] font-bold tracking-[0.3em] text-zinc-600 uppercase mb-12 border-b border-zinc-900 pb-4">
+                            What NORTHERN does
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-zinc-800 rounded-2xl overflow-hidden border border-zinc-800">
+                            {features.map((f, idx) => (
+                                <div
+                                    key={idx}
+                                    className="bg-[#080808] p-10 flex flex-col gap-6 hover:bg-[#0f0f0f] transition-colors group"
+                                >
+                                    <span className="text-[11px] font-bold tracking-[0.25em] text-zinc-700 uppercase">
+                                        {f.number}
+                                    </span>
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-zinc-100 transition-colors leading-snug">
+                                            {f.title}
+                                        </h3>
+                                        <p className="text-zinc-500 text-sm leading-relaxed font-light">
+                                            {f.desc}
+                                        </p>
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-4">{feature.title}</h3>
-                                    <p className="text-zinc-400 leading-relaxed text-sm">
-                                        {feature.desc}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Pricing — Free + Donate */}
+                    <div>
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">Simple, transparent pricing</h2>
+                            <p className="text-zinc-400 text-lg max-w-xl mx-auto">Free to use. Help keep NORTHERN running with a donation.</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+
+                            {/* Free */}
+                            <div className="flex flex-col border border-zinc-600 bg-zinc-900 rounded-3xl p-8 relative shadow-2xl shadow-zinc-900/60">
+                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase whitespace-nowrap">
+                                    Always free
+                                </div>
+                                <div className="mb-8">
+                                    <h3 className="text-lg font-semibold text-white mb-1">NORTHERN</h3>
+                                    <div className="flex items-baseline gap-1 mb-4">
+                                        <span className="text-4xl font-bold text-white">Free</span>
+                                    </div>
+                                    <p className="text-zinc-500 text-sm leading-relaxed">
+                                        Full access — no subscription, no catch. Donations help cover server and maintenance costs.
                                     </p>
                                 </div>
-                            ))}
+                                <ul className="space-y-3 flex-1 mb-8">
+                                    {[
+                                        'Full chat & workflow interface',
+                                        'All specialist agents',
+                                        'Persistent memory',
+                                        'All model routing (DeepSeek, OpenAI, Gemini)',
+                                        'Custom workflow builder',
+                                        'Priority security patches',
+                                    ].map((feat, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-zinc-300">
+                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                                            {feat}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <a href="/chat" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-white text-black hover:bg-zinc-200">
+                                    Start for free
+                                </a>
+                            </div>
+
+                            {/* Donate */}
+                            <div className="flex flex-col border border-zinc-800 bg-[#0a0a0a] rounded-3xl p-8">
+                                <div className="mb-8">
+                                    <h3 className="text-lg font-semibold text-white mb-1">Donate</h3>
+                                    <div className="flex items-baseline gap-1 mb-4">
+                                        <span className="text-4xl font-bold text-white">Any</span>
+                                        <span className="text-zinc-500 text-sm font-medium"> amount</span>
+                                    </div>
+                                    <p className="text-zinc-500 text-sm leading-relaxed">
+                                        Help keep NORTHERN open-source and free. Every dollar goes directly toward infrastructure and student access.
+                                    </p>
+                                </div>
+                                <ul className="space-y-3 flex-1 mb-8">
+                                    {[
+                                        'Funds free student access (US & Canada)',
+                                        'Covers server & infrastructure costs',
+                                        'Supports security audits & patches',
+                                        'Your name in the contributor list',
+                                    ].map((feat, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-zinc-400">
+                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-zinc-600 shrink-0" />
+                                            {feat}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <a href="#" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-zinc-800 text-white hover:bg-zinc-700">
+                                    Donate to NORTHERN
+                                </a>
+                            </div>
+
                         </div>
                     </div>
 
-                    {/* Pricing */}
-                    <div>
-                        <h2 className="text-xs font-bold tracking-[0.3em] text-zinc-500 mb-8 uppercase text-center">Pricing</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                            {pricing.map((plan, idx) => (
-                                <div key={idx} className={`rounded-3xl p-8 flex flex-col relative ${plan.primary ? 'bg-zinc-900 border border-zinc-700 shadow-2xl shadow-zinc-900/50' : 'bg-[#0a0a0a] border border-zinc-800'}`}>
-                                    {plan.primary && (
-                                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase">
-                                            Most Popular
-                                        </div>
-                                    )}
-                                    <h3 className="text-xl font-medium text-white mb-2">{plan.tier}</h3>
-                                    <div className="flex items-baseline gap-1 mb-4">
-                                        <span className="text-4xl font-bold text-white">{plan.price}</span>
-                                        <span className="text-zinc-500 font-medium">{plan.period}</span>
-                                    </div>
-                                    <p className="text-zinc-400 text-sm mb-8">{plan.note}</p>
-                                    <div className="flex-1">
-                                        <ul className="space-y-4 mb-8">
-                                            {plan.features.map((feat, i) => (
-                                                <li key={i} className="flex items-start gap-3 text-sm text-zinc-300">
-                                                    <span className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${plan.primary ? 'bg-white' : 'bg-zinc-600'}`} />
-                                                    <span>{feat}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <a href="#" className={`w-full py-4 rounded-xl flex items-center justify-center font-medium transition-colors ${plan.primary ? 'bg-white text-black hover:bg-zinc-200' : 'bg-zinc-800 text-white hover:bg-zinc-700'}`}>
-                                        {plan.cta}
-                                    </a>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="max-w-2xl mx-auto mt-8 p-6 bg-[#0a0a0a] border border-zinc-800 rounded-2xl text-center">
-                            <p className="text-sm text-zinc-400">
-                                <strong className="text-white">Support TARS.</strong> Contributions help fund student access and ongoing development.
-                            </p>
-                        </div>
-                    </div>
                 </main>
             </div>
+
             <Footer />
         </div>
     );

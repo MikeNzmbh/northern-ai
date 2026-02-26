@@ -10,7 +10,7 @@ export default function Footer({ className = '' }) {
                         <div className="flex items-center gap-4 mb-6 group cursor-pointer" onClick={() => window.location.href = '/'}>
                             {/* Animated Northern Logo */}
                             <div className="relative inline-flex items-center justify-center w-10 h-12">
-                                <svg viewBox="0 0 64 64" className="w-full h-full overflow-visible" aria-label="TARS Agentic Symbol">
+                                <svg viewBox="0 0 64 64" className="w-full h-full overflow-visible" aria-label="NORTHERN Agentic Symbol">
                                     <rect x="10" y="24" width="8" height="16" fill="var(--text-stone, #78716c)" className="opacity-70 transition-all duration-700 group-hover:opacity-100" />
                                     <rect x="22" y="12" width="8" height="40" fill="var(--text-stone, #78716c)" className="opacity-70 transition-all duration-700 group-hover:opacity-100" />
                                     <rect x="34" y="6" width="8" height="40" fill="var(--text-bone, #f2f0ed)" style={{ animation: 'agentic-float 4s ease-in-out infinite', filter: 'drop-shadow(0 0 8px rgba(242, 240, 237, 0.4))' }} />
@@ -19,10 +19,10 @@ export default function Footer({ className = '' }) {
                                     <path d="M 64 64 L 60 64 M 64 64 L 64 60" stroke="var(--text-stone, #78716c)" strokeWidth="1" fill="none" className="opacity-40" />
                                 </svg>
                             </div>
-                            <span className="text-2xl font-light tracking-[0.25em] text-white uppercase group-hover:text-zinc-200 transition-colors">TARS</span>
+                            <span className="text-2xl font-light tracking-[0.25em] text-white uppercase group-hover:text-zinc-200 transition-colors">NORTHERN</span>
                         </div>
                         <p className="text-zinc-400 text-sm leading-relaxed mb-8">
-                            TARS is an AI assistant for real work. Chat with it, connect your tools, and approve actions before anything is sent or changed.
+                            NORTHERN is an AI assistant for real work. Chat with it, connect your tools, and approve actions before anything is sent or changed.
                         </p>
                         <a
                             href="/chat"
@@ -52,14 +52,14 @@ export default function Footer({ className = '' }) {
                             <h4 className="text-white text-sm font-semibold mb-2">Company</h4>
                             <a href="#" className="text-zinc-400 hover:text-white transition-colors text-sm">About</a>
                             <a href="#" className="text-zinc-400 hover:text-white transition-colors text-sm">Blog</a>
-                            <a href="mailto:sales@tars.ai" className="text-zinc-400 hover:text-white transition-colors text-sm">Contact</a>
+                            <a href="mailto:sales@northern.ai" className="text-zinc-400 hover:text-white transition-colors text-sm">Contact</a>
                             <a href="#" className="text-zinc-400 hover:text-white transition-colors text-sm">Security</a>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-zinc-800/50 text-xs text-zinc-500 gap-4">
-                    <p>&copy; {new Date().getFullYear()} TARS AI Inc. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} NORTHERN AI Inc. All rights reserved.</p>
                     <div className="flex gap-6">
                         <a href="#" className="hover:text-zinc-300 transition-colors">Privacy Policy</a>
                         <a href="#" className="hover:text-zinc-300 transition-colors">Terms of Service</a>

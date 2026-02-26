@@ -102,7 +102,7 @@ const DonateCard = ({ message }) => (
     }}>
         <div>
             <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.25em', color: 'rgba(255,255,255,0.5)', marginBottom: '1rem' }}>OPEN PROTOCOL</div>
-            <div style={{ fontSize: '1.75rem', fontWeight: 300, color: WHITE, lineHeight: 1.3, marginBottom: '1rem' }}>Keep TARS open-source.</div>
+            <div style={{ fontSize: '1.75rem', fontWeight: 300, color: WHITE, lineHeight: 1.3, marginBottom: '1rem' }}>Keep NORTHERN open-source.</div>
             <div style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>{message}</div>
         </div>
         <button style={{ width: '100%', padding: '1.125rem', fontSize: '12px', fontWeight: 700, letterSpacing: '0.15em', fontFamily: 'inherit', cursor: 'pointer', background: 'transparent', color: WHITE, border: '1px solid rgba(255,255,255,0.35)', borderRadius: '4px' }}>
@@ -124,7 +124,7 @@ export const BusinessSection = () => {
 
     const featureCards = [
         {
-            title: 'TARS Chat for Business',
+            title: 'NORTHERN Chat for Business',
             description: 'Empower your entire workforce with frontier AI.',
             bullets: [
                 <>
@@ -160,10 +160,10 @@ export const BusinessSection = () => {
                         The next era of work is here
                     </p>
                     <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.08] text-white">
-                        Create, code, and innovate with TARS tools and APIs
+                        Create, code, and innovate with NORTHERN tools and APIs
                     </h2>
                     <p className="text-zinc-400 text-base md:text-lg mb-10 leading-relaxed max-w-md">
-                        TARS-1 is our smartest, most accurate model, delivering results your business can trust.
+                        NORTHERN-1 is our smartest, most accurate model, delivering results your business can trust.
                     </p>
 
                     <div className="flex flex-wrap items-center gap-4">
@@ -175,7 +175,7 @@ export const BusinessSection = () => {
                             <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                         </a>
                         <a
-                            href="mailto:sales@tars.ai"
+                            href="mailto:sales@northern.ai"
                             className="bg-zinc-900 border border-zinc-800 text-white px-5 py-2.5 rounded-full font-medium hover:bg-zinc-800 transition-colors"
                         >
                             Contact sales
@@ -196,7 +196,7 @@ export const BusinessSection = () => {
                                         type="button"
                                         className="text-zinc-500 font-medium flex items-center gap-1 hover:text-black transition-colors"
                                     >
-                                        TARS World <ChevronDown className="w-4 h-4" />
+                                        NORTHERN World <ChevronDown className="w-4 h-4" />
                                     </button>
                                 </div>
 
@@ -216,7 +216,7 @@ export const BusinessSection = () => {
                                 </div>
 
                                 <div className="w-full max-w-md border border-zinc-200 rounded-full px-4 py-3 flex items-center text-zinc-400 text-sm">
-                                    Ask TARS anything, @ to add files, / for commands
+                                    Ask NORTHERN anything, @ to add files, / for commands
                                 </div>
 
                                 <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-purple-500/10 to-transparent rounded-b-[1.5rem] pointer-events-none" />
@@ -224,7 +224,7 @@ export const BusinessSection = () => {
 
                             <div className="hidden md:block absolute left-3 lg:-left-10 bottom-8 lg:bottom-12 bg-[#fafafa] border border-zinc-200 rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] w-72 overflow-hidden z-10">
                                 <div className="px-4 py-3 border-b border-zinc-100 flex items-center gap-2 text-zinc-600 font-medium text-sm">
-                                    <Folder className="w-4 h-4" /> TARS Work
+                                    <Folder className="w-4 h-4" /> NORTHERN Work
                                 </div>
                                 <div className="p-2 flex flex-col text-sm">
                                     {workItems.map(([label, time]) => (
@@ -276,7 +276,7 @@ export const IndividualsSection = () => (
             <div><Pill>PERSONAL RUNTIME</Pill></div>
             <H1>Run real work. Not just questions.</H1>
             <Lead>
-                TARS is not a chatbot. It is an <strong style={{ color: WHITE, fontWeight: 400 }}>operator-grade AI runtime</strong> that combines chat, tools, governance, and autonomous workflows. Give it a task, approve the gate, and let 9 specialized agents execute safely while you focus on what matters.
+                NORTHERN is not a chatbot. It is an <strong style={{ color: WHITE, fontWeight: 400 }}>operator-grade AI runtime</strong> that combines chat, tools, governance, and autonomous workflows. Give it a task, approve the gate, and let 9 specialized agents execute safely while you focus on what matters.
             </Lead>
         </div>
 
@@ -292,15 +292,15 @@ export const IndividualsSection = () => (
                 },
                 {
                     title: 'Autonomous Workflows',
-                    desc: 'Describe an intent. TARS routes it across its 9 specialist agents, pauses at an approval gate, and executes. Email triage, GitHub issue resolution, research briefs — handled end-to-end without you babysitting each step.',
+                    desc: 'Describe an intent. NORTHERN routes it across its 9 specialist agents, pauses at an approval gate, and executes. Email triage, GitHub issue resolution, research briefs — handled end-to-end without you babysitting each step.',
                 },
                 {
                     title: 'Human-In-The-Loop by Default',
-                    desc: 'TARS will not send, deploy, commit, or change anything without your thumbprint approval. The Human-In-The-Loop gate is not optional. It is architecturally enforced at the runtime level.',
+                    desc: 'NORTHERN will not send, deploy, commit, or change anything without your thumbprint approval. The Human-In-The-Loop gate is not optional. It is architecturally enforced at the runtime level.',
                 },
                 {
                     title: 'Model-Agnostic',
-                    desc: 'OpenAI, DeepSeek, Gemini, or fully local models — TARS routes each task to the right provider automatically. No model lock-in. No data sent to cloud APIs if you choose local.',
+                    desc: 'OpenAI, DeepSeek, Gemini, or fully local models — NORTHERN routes each task to the right provider automatically. No model lock-in. No data sent to cloud APIs if you choose local.',
                 },
                 {
                     title: 'Desktop-First, Browser Fallback',
@@ -338,7 +338,7 @@ export const IndividualsSection = () => (
                     price="$5"
                     period="/month"
                     primary
-                    note="For individuals who want TARS running reliably, with priority support and the full autonomous workflow stack."
+                    note="For individuals who want NORTHERN running reliably, with priority support and the full autonomous workflow stack."
                     features={[
                         'Everything in Student',
                         'Unlimited persistent memory',
@@ -356,16 +356,16 @@ export const IndividualsSection = () => (
 );
 
 // ════════════════════════════════════════════════════════════════════════════════
-// STORIES — Aspirational: what TARS makes possible
+// STORIES — Aspirational: what NORTHERN makes possible
 // ════════════════════════════════════════════════════════════════════════════════
 export const StoriesSection = () => (
     <div className={WRAP}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '8rem', paddingTop: '4rem' }}>
             <div><Pill>WHAT BECOMES POSSIBLE</Pill></div>
-            <H1>What operators do with TARS.</H1>
+            <H1>What operators do with NORTHERN.</H1>
             <Lead>
-                These are the workflows TARS is built for. Real use cases from the kinds of operators, developers, and researchers who push the runtime to its limits every day.
+                These are the workflows NORTHERN is built for. Real use cases from the kinds of operators, developers, and researchers who push the runtime to its limits every day.
             </Lead>
         </div>
 
@@ -377,7 +377,7 @@ export const StoriesSection = () => (
                         &#8220;Two hours of my morning back. Every single day.&#8221;
                     </blockquote>
                     <p style={{ fontSize: '1.25rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: '700px' }}>
-                        TARS&#8217;s RESEARCH_LIBRARIAN and NEWS_SCOUT agents run overnight, digest 12 feeds, and deliver a structured, cited intelligence brief by 8 AM. No tabs. No copy-pasting. Setup in one afternoon.
+                        NORTHERN&#8217;s RESEARCH_LIBRARIAN and NEWS_SCOUT agents run overnight, digest 12 feeds, and deliver a structured, cited intelligence brief by 8 AM. No tabs. No copy-pasting. Setup in one afternoon.
                     </p>
                     <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', display: 'flex', gap: '4rem' }}>
                         <div>
@@ -408,7 +408,7 @@ export const StoriesSection = () => (
                 <MinimalCard>
                     <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.2rem', color: 'rgba(255,255,255,0.5)', marginBottom: '1.5rem' }}>INDEPENDENT DEVELOPER</div>
                     <blockquote style={{ fontSize: '2rem', fontWeight: 300, color: WHITE, lineHeight: 1.2, margin: '0 0 1.5rem 0' }}>
-                        &#8220;I gave TARS a GitHub repo with 50 open issues. It queued 12 PRs for my approval. Like a senior engineer on retainer.&#8221;
+                        &#8220;I gave NORTHERN a GitHub repo with 50 open issues. It queued 12 PRs for my approval. Like a senior engineer on retainer.&#8221;
                     </blockquote>
                     <p style={{ fontSize: '1rem', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>From triage to pull request in under 10 minutes.</p>
                 </MinimalCard>
@@ -419,12 +419,12 @@ export const StoriesSection = () => (
                     <div>
                         <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.2rem', color: 'rgba(255,255,255,0.5)', marginBottom: '1.5rem' }}>BUSINESS OPERATOR</div>
                         <blockquote style={{ fontSize: '2rem', fontWeight: 300, color: WHITE, lineHeight: 1.2, margin: 0 }}>
-                            &#8220;TARS handles our email triage, meeting prep briefs, and outreach queues. My team ships twice as fast.&#8221;
+                            &#8220;NORTHERN handles our email triage, meeting prep briefs, and outreach queues. My team ships twice as fast.&#8221;
                         </blockquote>
                     </div>
                     <div style={{ alignSelf: 'center' }}>
                         <p style={{ fontSize: '1.25rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: '600px' }}>
-                            TARS&#8217;s autonomous workflow stack processes incoming requests, categorizes them, drafts responses, and holds them at an approval gate before anything is sent. The operator reviews and hits approve. Nothing goes out unreviewed.
+                            NORTHERN&#8217;s autonomous workflow stack processes incoming requests, categorizes them, drafts responses, and holds them at an approval gate before anything is sent. The operator reviews and hits approve. Nothing goes out unreviewed.
                         </p>
                     </div>
                 </div>
@@ -443,7 +443,7 @@ export const IntegrationsSection = () => (
             <div><Pill>ECOSYSTEM</Pill></div>
             <H1>Your tools. One runtime.</H1>
             <Lead>
-                TARS pulls live context from where you already work &#8212; Slack, GitHub, Drive, Notion &#8212; and routes it through the agent fleet. No copy-pasting between tabs. Analyze, approve, and execute across your entire stack from one interface.
+                NORTHERN pulls live context from where you already work &#8212; Slack, GitHub, Drive, Notion &#8212; and routes it through the agent fleet. No copy-pasting between tabs. Analyze, approve, and execute across your entire stack from one interface.
             </Lead>
         </div>
 
@@ -481,7 +481,7 @@ export const IntegrationsSection = () => (
         <div style={{ marginTop: '4rem', padding: '3rem', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', background: 'rgba(255,255,255,0.01)' }}>
             <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.25em', color: 'rgba(255,255,255,0.4)', marginBottom: '1rem' }}>IN DEVELOPMENT · Q2 2026</div>
             <div style={{ fontSize: '2rem', fontWeight: 300, color: WHITE, marginBottom: '1rem' }}>Native Slack &amp; Notion integrations arriving Q2 2026.</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)' }}>Receive your morning intelligence brief in Slack. Push research summaries directly to Notion. TARS will live where you already work, not in yet another tab.</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 300, color: 'rgba(255,255,255,0.5)' }}>Receive your morning intelligence brief in Slack. Push research summaries directly to Notion. NORTHERN will live where you already work, not in yet another tab.</div>
         </div>
     </div>
 );
@@ -496,7 +496,7 @@ export const NewsSection = () => (
             <div><Pill>ROADMAP</Pill></div>
             <H1>What we&#39;re shipping next.</H1>
             <Lead>
-                Three near-term bets from the TARS engineering team: web-linked chat presence, broader real-world autonomy, and self-improving agent generation. Here&#39;s where the runtime is heading.
+                Three near-term bets from the NORTHERN engineering team: web-linked chat presence, broader real-world autonomy, and self-improving agent generation. Here&#39;s where the runtime is heading.
             </Lead>
         </div>
 
@@ -506,19 +506,19 @@ export const NewsSection = () => (
                     tag: 'Q1 2026',
                     status: 'UPCOMING',
                     title: 'Web & Device Linked Chat',
-                    body: 'Login with online/offline device presence and queued message delivery. TARS stays connected across your devices so nothing falls through the cracks — even when you\'re offline.',
+                    body: 'Login with online/offline device presence and queued message delivery. NORTHERN stays connected across your devices so nothing falls through the cracks — even when you\'re offline.',
                 },
                 {
                     tag: 'Q1 2026',
                     status: 'UPCOMING',
-                    title: 'TARS Voice',
+                    title: 'NORTHERN Voice',
                     body: 'Start a research workflow with your voice while driving. Full runtime power, zero screen required. Desktop first, then mobile.',
                 },
                 {
                     tag: 'Q2 2026',
                     status: 'IN DEVELOPMENT',
                     title: 'Broader Business Autonomy',
-                    body: 'Expanded scenario coverage for email, outreach, reporting, and approval workflows. TARS handles end-to-end business operations — with a governance gate before every send.',
+                    body: 'Expanded scenario coverage for email, outreach, reporting, and approval workflows. NORTHERN handles end-to-end business operations — with a governance gate before every send.',
                 },
                 {
                     tag: 'Q2 2026',
@@ -536,7 +536,7 @@ export const NewsSection = () => (
                     tag: 'SHIPPED',
                     status: 'SHIPPED',
                     title: 'Multi-Model Routing',
-                    body: 'TARS now connects DeepSeek, OpenAI, Gemini, and mock providers out of the box. Each task is routed to the optimal model automatically based on complexity, latency requirements, and cost.',
+                    body: 'NORTHERN now connects DeepSeek, OpenAI, Gemini, and mock providers out of the box. Each task is routed to the optimal model automatically based on complexity, latency requirements, and cost.',
                 },
             ].map((item, i) => (
                 <div key={i} style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) 3fr', gap: '2rem', padding: '4rem 0', borderBottom: '1px solid rgba(255,255,255,0.15)' }}>

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { normalizeBase } from '../lib/api';
 
-const STORAGE_KEY = 'tars.chat.settings.v1';
+const STORAGE_KEY = 'northern.chat.settings.v1';
 
-// Default API base for dev — /api is proxied by Vite to the TARS backend.
+// Default API base for dev — /api is proxied by Vite to the Northern backend.
 // This avoids CORS issues without any backend changes.
 // Direct mode: set to 'http://127.0.0.1:8000' (requires backend CORS to allow localhost:5173)
 const DEV_DEFAULT_API_BASE = '/api';
@@ -13,7 +13,7 @@ function normalizeSettings(input) {
         apiBaseUrl: normalizeBase(input?.apiBaseUrl || DEV_DEFAULT_API_BASE),
         operatorToken: String(input?.operatorToken || '').trim(),
         theme: ['light', 'dark', 'system'].includes(input?.theme) ? input.theme : 'dark',
-        actor: String(input?.actor || 'tars_web_user').trim() || 'tars_web_user',
+        actor: String(input?.actor || 'northern_web_user').trim() || 'northern_web_user',
     };
 }
 

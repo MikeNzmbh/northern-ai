@@ -4,7 +4,7 @@ import '../styles/studio.css';
 import { getApiBase, classifyApiError } from '../lib/api';
 import { useSettings } from '../hooks/useSettings';
 
-const CLEAN_ACTOR = 'tars_web_user';
+const CLEAN_ACTOR = 'northern_web_user';
 
 // ─── Answer compilation helpers (unchanged logic) ────────────────────────────
 function setNestedValue(target, path, value) {
@@ -200,12 +200,12 @@ export default function PersonalityOnboarding() {
                 {/* Header */}
                 <header className="mb-10 flex flex-wrap items-start justify-between gap-4">
                     <div>
-                        <span className="mono-meta mb-2 block" style={{ color: 'var(--text-shadow)' }}>TARS / Personality setup</span>
+                        <span className="mono-meta mb-2 block" style={{ color: 'var(--text-shadow)' }}>NORTHERN / Personality setup</span>
                         <h1 className="text-3xl md:text-4xl font-light tracking-tight" style={{ color: 'var(--text-ink)' }}>
                             {manifest?.title || 'Personality Setup'}
                         </h1>
                         <p className="mt-2 max-w-2xl text-sm font-light leading-relaxed" style={{ color: 'var(--text-stone)' }}>
-                            {manifest?.description || 'Choose how TARS should speak to you. You can preview replies before saving anything.'}
+                            {manifest?.description || 'Choose how NORTHERN should speak to you. You can preview replies before saving anything.'}
                         </p>
                     </div>
                     <Link to="/chat" className="mono-meta px-3 py-1.5 border transition-colors shrink-0"
@@ -376,7 +376,7 @@ export default function PersonalityOnboarding() {
                                             <p className="text-sm font-light" style={{ color: 'var(--text-stone)' }}>{preview.user_prompt}</p>
                                         </div>
                                         <div>
-                                            <p className="mono-meta mb-1" style={{ color: 'var(--text-shadow)' }}>TARS reply</p>
+                                            <p className="mono-meta mb-1" style={{ color: 'var(--text-shadow)' }}>NORTHERN reply</p>
                                             <p className="text-sm font-light leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--text-ink)' }}>
                                                 {preview.reply}
                                             </p>

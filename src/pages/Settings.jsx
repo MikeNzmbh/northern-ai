@@ -18,9 +18,9 @@ function diagnoseFetchError(err, base) {
     if (msg.includes('HTML') || msg.includes('not valid JSON'))
         return 'Response was HTML — API base likely points to the frontend. Use /api or the direct backend URL.';
     if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-        if (base?.startsWith('/')) return 'The local proxy could not reach the TARS backend. Make sure the backend is running on http://127.0.0.1:8000.';
-        if (isSelfOrigin(base)) return `${base} is this website, not the TARS backend. Use /api or http://127.0.0.1:8000.`;
-        return `Cannot connect to ${base}. Is the TARS backend running?`;
+        if (base?.startsWith('/')) return 'The local proxy could not reach the NORTHERN backend. Make sure the backend is running on http://127.0.0.1:8000.';
+        if (isSelfOrigin(base)) return `${base} is this website, not the NORTHERN backend. Use /api or http://127.0.0.1:8000.`;
+        return `Cannot connect to ${base}. Is the NORTHERN backend running?`;
     }
     return msg || 'Unknown error';
 }
@@ -56,7 +56,7 @@ function TestConnection({ base }) {
         try {
             const resp = await requestJson(base, '/chat/sessions', {
                 method: 'POST',
-                body: JSON.stringify({ mode: 'assistant', actor: 'tars_web_user', temporary: true }),
+                body: JSON.stringify({ mode: 'assistant', actor: 'northern_web_user', temporary: true }),
             });
             setSessionId(resp?.session_id || resp?.id || '(no id)');
             setDetail(`Backend reachable via ${base || '(empty)'}`);
@@ -125,7 +125,7 @@ export default function Settings() {
 
     const handleSave = e => {
         e.preventDefault();
-        update({ apiBaseUrl: apiBaseUrl.trim(), operatorToken: operatorToken.trim(), actor: actor.trim() || 'tars_web_user' });
+        update({ apiBaseUrl: apiBaseUrl.trim(), operatorToken: operatorToken.trim(), actor: actor.trim() || 'northern_web_user' });
         setSaved(true); setTimeout(() => setSaved(false), 2500);
     };
 
@@ -138,7 +138,7 @@ export default function Settings() {
                 {/* Header */}
                 <header className="flex items-center justify-between">
                     <div>
-                        <span className="mono-meta block mb-2" style={{ color: 'var(--text-shadow)' }}>TARS / Settings</span>
+                        <span className="mono-meta block mb-2" style={{ color: 'var(--text-shadow)' }}>NORTHERN / Settings</span>
                         <h1 className="text-3xl font-light tracking-tight" style={{ color: 'var(--text-ink)' }}>Connection &amp; Profile</h1>
                     </div>
                     <div className="flex gap-2">
@@ -161,7 +161,7 @@ export default function Settings() {
                                 style={{ borderColor: 'rgba(180,140,60,0.3)', background: 'rgba(220,170,60,0.07)' }}>
                                 <p className="mono-meta" style={{ color: 'var(--text-stone)' }}>⚠ Wrong address</p>
                                 <p className="text-xs font-light" style={{ color: 'var(--text-stone)' }}>
-                                    <code className="font-mono">{resolvedBase}</code> points to this website, so chat requests will not reach the TARS backend.
+                                    <code className="font-mono">{resolvedBase}</code> points to this website, so chat requests will not reach the NORTHERN backend.
                                 </p>
                                 <div className="flex gap-2">
                                     <button type="button" onClick={() => setApiBaseUrl('/api')}
@@ -180,7 +180,7 @@ export default function Settings() {
                     </Field>
 
                     <Field label="Profile name" hint="Used for chat sessions and saved personality settings.">
-                        <SInput value={actor} onChange={e => setActor(e.target.value)} placeholder="tars_web_user" />
+                        <SInput value={actor} onChange={e => setActor(e.target.value)} placeholder="northern_web_user" />
                     </Field>
 
                     <Field label="Admin token (dev only)" hint="Needed only for profile save actions in local development. Do not hardcode in production.">
@@ -202,7 +202,7 @@ export default function Settings() {
                     <div>
                         <span className="mono-meta block mb-1" style={{ color: 'var(--text-shadow)' }}>Connection test</span>
                         <p className="text-xs font-light" style={{ color: 'var(--text-stone)' }}>
-                            This checks whether TARS can create a chat session using{' '}
+                            This checks whether NORTHERN can create a chat session using{' '}
                             <code className="font-mono">{resolvedBase || '/api'}</code>.
                         </p>
                     </div>

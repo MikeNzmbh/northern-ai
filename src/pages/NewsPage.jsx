@@ -8,13 +8,13 @@ export default function NewsPage() {
             tag: 'Q1 2026',
             status: 'UPCOMING',
             title: 'Web & Device Linked Chat',
-            body: 'Sign in from the web, see whether your TARS device is online, and queue messages when it is offline.',
+            body: 'Sign in from the web, see whether your NORTHERN device is online, and queue messages when it is offline.',
         },
         {
             tag: 'Q1 2026',
             status: 'UPCOMING',
-            title: 'TARS Voice',
-            body: 'Start a task with your voice and let TARS continue the workflow. Desktop first, then mobile.',
+            title: 'NORTHERN Voice',
+            body: 'Start a task with your voice and let NORTHERN continue the workflow. Desktop first, then mobile.',
         },
         {
             tag: 'Q2 2026',
@@ -38,7 +38,7 @@ export default function NewsPage() {
             tag: 'SHIPPED',
             status: 'SHIPPED',
             title: 'Multi-Model Routing',
-            body: 'TARS supports DeepSeek, OpenAI, Gemini, and mock providers, and can route tasks to the best available model.',
+            body: 'NORTHERN supports DeepSeek, OpenAI, Gemini, and mock providers, and can route tasks to the best available model.',
         }
     ];
 

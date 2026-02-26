@@ -1,4 +1,5 @@
 import React from 'react';
+import Footer from '../components/Footer';
 import {
     ArrowLeft,
     ChevronDown,
@@ -16,19 +17,11 @@ const workItems = [
 
 const featureCards = [
     {
-        title: 'TARS Chat for Business',
+        title: 'NORTHERN Chat for Business',
         description: 'Give your team one place to ask, automate, and review work safely.',
         bullets: [
             'Give teams a shared AI workspace with approvals built in.',
             'Use chat, tools, and data analysis in one place.',
-        ],
-    },
-    {
-        title: 'API Platform',
-        description: 'Build internal tools and automations on top of TARS.',
-        bullets: [
-            'Use the API to connect TARS to your systems and workflows.',
-            'Good for multi-step tasks that need review and reliable execution.',
         ],
     },
 ];
@@ -47,13 +40,13 @@ export default function BusinessPage() {
             <nav className="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#000]/95 backdrop-blur">
                 <a href="/" className="flex items-center gap-2 text-zinc-400 hover:text-zinc-100 transition-colors text-sm font-medium group">
                     <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                    TARS Home
+                    NORTHERN Home
                 </a>
                 <div className="flex items-center gap-4 text-sm font-medium">
                     <a href="/chat" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1 group">
                         Open Chat <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </a>
-                    <a href="mailto:sales@tars.ai" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1 group">
+                    <a href="mailto:sales@northern.ai" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1 group">
                         Contact sales <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </a>
                 </div>
@@ -69,14 +62,14 @@ export default function BusinessPage() {
                                 AI that fits how your team already works.
                             </h1>
                             <p className="text-zinc-400 text-base md:text-lg mb-10 leading-relaxed max-w-md">
-                                TARS helps your team draft, review, and automate work with clear approval steps before anything is sent or changed.
+                                NORTHERN helps your team draft, review, and automate work with clear approval steps before anything is sent or changed.
                             </p>
                             <div className="flex flex-wrap items-center gap-4">
                                 <a href="/solutions" className="bg-white text-black px-6 py-3 rounded-full text-sm font-semibold hover:bg-zinc-200 transition-colors flex items-center gap-2 group">
                                     Explore solutions
                                     <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                                 </a>
-                                <a href="mailto:sales@tars.ai" className="bg-transparent border border-white/20 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/10 transition-colors">
+                                <a href="mailto:sales@northern.ai" className="bg-transparent border border-white/20 text-white px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/10 transition-colors">
                                     Contact sales
                                 </a>
                             </div>
@@ -102,7 +95,7 @@ export default function BusinessPage() {
 
                                     <div className="p-5">
                                         <div className="flex items-center gap-2 px-3 py-2 bg-zinc-50 rounded-xl border border-zinc-200 text-zinc-600 text-sm mb-5 cursor-pointer hover:bg-zinc-100 transition-colors">
-                                            <span className="font-medium">TARS World</span>
+                                            <span className="font-medium">NORTHERN World</span>
                                             <ChevronDown className="w-4 h-4 ml-auto" />
                                         </div>
 
@@ -116,12 +109,12 @@ export default function BusinessPage() {
 
                                         <div className="border border-zinc-200 rounded-2xl overflow-hidden mb-3">
                                             <div className="px-4 py-3 text-xs text-zinc-400 bg-zinc-50 border-b border-zinc-100">
-                                                Ask TARS a question, add files, or run a command
+                                                Ask NORTHERN anything, add files, or run a command
                                             </div>
                                             <div className="bg-white px-4 py-3 flex items-center justify-between">
                                                 <div className="flex items-center gap-3 text-xs text-zinc-400">
                                                     <Folder className="w-4 h-4" />
-                                                    <span>TARS Work (4 tasks)</span>
+                                                    <span>NORTHERN Work (4 tasks)</span>
                                                 </div>
                                                 <button className="bg-zinc-900 text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-zinc-700 transition-colors">
                                                     Send
@@ -156,65 +149,34 @@ export default function BusinessPage() {
                         ))}
                     </div>
 
-                    {/* Pricing */}
+                    {/* Pricing — single plan + donate */}
                     <div className="mt-24">
                         <div className="text-center mb-16">
                             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">Simple, transparent pricing</h2>
-                            <p className="text-zinc-400 text-lg max-w-xl mx-auto">Start small, then scale as your team grows.</p>
+                            <p className="text-zinc-400 text-lg max-w-xl mx-auto">Free to use. Help keep NORTHERN running with a donation.</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
 
-                            {/* Student */}
-                            <div className="flex flex-col border border-zinc-800 bg-[#0a0a0a] rounded-3xl p-8">
+                            {/* Maintenance plan */}
+                            <div className="flex flex-col border border-zinc-600 bg-zinc-900 rounded-3xl p-8 relative shadow-2xl shadow-zinc-900/60">
+                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase whitespace-nowrap">
+                                    Always free
+                                </div>
                                 <div className="mb-8">
-                                    <h3 className="text-lg font-semibold text-white mb-1">Student</h3>
+                                    <h3 className="text-lg font-semibold text-white mb-1">NORTHERN</h3>
                                     <div className="flex items-baseline gap-1 mb-4">
                                         <span className="text-4xl font-bold text-white">Free</span>
                                     </div>
                                     <p className="text-zinc-500 text-sm leading-relaxed">
-                                        Full access for verified students in the US & Canada.
+                                        Full access to NORTHERN — no subscription required. Donations help cover server and maintenance costs.
                                     </p>
                                 </div>
                                 <ul className="space-y-3 flex-1 mb-8">
                                     {[
-                                        'All 9 specialist agents',
                                         'Full chat & workflow interface',
-                                        'Personality configuration',
-                                        'Standard integrations',
-                                        'Requires verified .edu email',
-                                    ].map((f, i) => (
-                                        <li key={i} className="flex items-start gap-3 text-sm text-zinc-400">
-                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                                            {f}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <a href="#" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-zinc-800 text-white hover:bg-zinc-700">
-                                    Verify Student Status
-                                </a>
-                            </div>
-
-                            {/* Operator — Primary */}
-                            <div className="flex flex-col border border-zinc-600 bg-zinc-900 rounded-3xl p-8 relative shadow-2xl shadow-zinc-900/60">
-                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase">
-                                    Most Popular
-                                </div>
-                                <div className="mb-8">
-                                    <h3 className="text-lg font-semibold text-white mb-1">Operator</h3>
-                                    <div className="flex items-baseline gap-1 mb-4">
-                                        <span className="text-4xl font-bold text-white">$5</span>
-                                        <span className="text-zinc-500 text-sm font-medium">/month</span>
-                                    </div>
-                                    <p className="text-zinc-500 text-sm leading-relaxed">
-                                        For people who want the full TARS experience with automation and saved memory.
-                                    </p>
-                                </div>
-                                <ul className="space-y-3 flex-1 mb-8">
-                                    {[
-                                        'Everything in Student',
-                                        'Unlimited persistent memory',
-                                        'Daily research & intel briefs',
+                                        'All specialist agents',
+                                        'Persistent memory',
                                         'All model routing (DeepSeek, OpenAI, Gemini)',
                                         'Custom workflow builder',
                                         'Priority security patches',
@@ -225,8 +187,8 @@ export default function BusinessPage() {
                                         </li>
                                     ))}
                                 </ul>
-                                <a href="#" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-white text-black hover:bg-zinc-200">
-                                    Start for $5/mo
+                                <a href="/chat" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-white text-black hover:bg-zinc-200">
+                                    Start for free
                                 </a>
                             </div>
 
@@ -236,18 +198,17 @@ export default function BusinessPage() {
                                     <h3 className="text-lg font-semibold text-white mb-1">Donate</h3>
                                     <div className="flex items-baseline gap-1 mb-4">
                                         <span className="text-4xl font-bold text-white">Any</span>
-                                        <span className="text-zinc-500 text-sm font-medium">amount</span>
+                                        <span className="text-zinc-500 text-sm font-medium"> amount</span>
                                     </div>
                                     <p className="text-zinc-500 text-sm leading-relaxed">
-                                        Help support TARS and keep student access available.
+                                        Help keep NORTHERN open-source and free for students. Every dollar funds infrastructure and student access.
                                     </p>
                                 </div>
                                 <ul className="space-y-3 flex-1 mb-8">
                                     {[
-                                        'Funds free student access',
+                                        'Funds free student access (US & Canada)',
                                         'Covers server & infrastructure costs',
                                         'Supports security audits & patches',
-                                        'Expands researcher access globally',
                                         'Your name in the contributor list',
                                     ].map((f, i) => (
                                         <li key={i} className="flex items-start gap-3 text-sm text-zinc-400">
@@ -257,7 +218,7 @@ export default function BusinessPage() {
                                     ))}
                                 </ul>
                                 <a href="#" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-zinc-800 text-white hover:bg-zinc-700">
-                                    Support TARS
+                                    Donate to NORTHERN
                                 </a>
                             </div>
 
@@ -265,6 +226,7 @@ export default function BusinessPage() {
                     </div>
                 </main>
             </div>
+            <Footer />
         </div>
     );
 }

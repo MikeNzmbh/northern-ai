@@ -1,11 +1,11 @@
 const DEFAULT_API_BASE = 'http://127.0.0.1:8000';
 
-// Recommended dev default: /api (proxied by Vite → TARS backend, avoids CORS entirely)
-// Change via VITE_TARS_API_BASE env var or Settings page → stored in localStorage
+// Recommended dev default: /api (proxied by Vite → Northern backend, avoids CORS entirely)
+// Change via VITE_NORTHERN_API_BASE env var or Settings page → stored in localStorage
 export const RECOMMENDED_DEV_BASE = '/api';
 
 /**
- * Returns the TARS backend base URL (no trailing slash).
+ * Returns the Northern backend base URL (no trailing slash).
  * Supports both absolute URLs (http://...) and relative paths (/api).
  *
  * Dev recommendation: use "/api" so Vite proxies requests to the backend.
@@ -14,7 +14,7 @@ export const RECOMMENDED_DEV_BASE = '/api';
  */
 export function getApiBase() {
     const raw =
-        (typeof import.meta !== 'undefined' && import.meta.env?.VITE_TARS_API_BASE) ||
+        (typeof import.meta !== 'undefined' && import.meta.env?.VITE_NORTHERN_API_BASE) ||
         DEFAULT_API_BASE;
     return normalizeBase(String(raw).trim());
 }
@@ -65,7 +65,7 @@ export async function requestJson(base, path, init = {}) {
         const snippet = text.slice(0, 120).trim();
         const isHtml = snippet.startsWith('<') || snippet.toLowerCase().includes('<!doctype');
         const hint = isHtml
-            ? ' (got HTML — API base may be pointing to the frontend server instead of the TARS backend; use /api or set VITE_TARS_API_BASE)'
+            ? ' (got HTML — API base may be pointing to the frontend server instead of the Northern backend; use /api or set VITE_NORTHERN_API_BASE)'
             : '';
         const err = new Error(`Response was not valid JSON (${response.status})${hint}`);
         err.status = response.status;
@@ -76,6 +76,39 @@ export async function requestJson(base, path, init = {}) {
         const detail = parsed?.detail || parsed?.message || `Request failed (${response.status})`;
         const error = new Error(String(detail));
         error.status = response.status;
+        throw error;
+    }
+
+    return parsed;
+}
+
+/**
+ * Multipart/form-data fetch wrapper for file uploads.
+ * Do not set content-type manually; the browser sets the boundary.
+ */
+export async function requestMultipartJson(base, path, formData, init = {}) {
+    const url = buildUrl(base, path);
+    const response = await fetch(url, {
+        credentials: 'include',
+        ...init,
+        body: formData,
+    });
+
+    const text = await response.text();
+    let parsed;
+    try {
+        parsed = text ? JSON.parse(text) : {};
+    } catch {
+        const err = new Error(`Response was not valid JSON (${response.status})`);
+        err.status = response.status;
+        throw err;
+    }
+
+    if (!response.ok) {
+        const detail = parsed?.detail || parsed?.message || `Request failed (${response.status})`;
+        const error = new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+        error.status = response.status;
+        error.payload = parsed;
         throw error;
     }
 
