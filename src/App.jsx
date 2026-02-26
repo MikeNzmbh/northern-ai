@@ -154,6 +154,7 @@ const CircularMenu = () => {
 
 // ─── Welcome / Home Page ──────────────────────────────────────────────────────
 function WelcomePage() {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   return (
     <div className="relative w-screen min-h-screen bg-[#070707] flex flex-col items-center selection:bg-[rgba(242,240,237,0.2)] overflow-x-hidden font-['JetBrains_Mono']">
       <style dangerouslySetInnerHTML={{
@@ -185,7 +186,82 @@ function WelcomePage() {
           0%, 100% { opacity: 0.3; transform: scale(1); }
           50%       { opacity: 0.6; transform: scale(1.08); }
         }
+        .home-arc-menu { display: flex; }
+        .home-mobile-nav { display: none; }
+        @media (max-width: 639px) {
+          .home-arc-menu { display: none !important; }
+          .home-mobile-nav { display: block !important; }
+        }
       `}} />
+
+      {/* ── Mobile Top Nav ── */}
+      <div
+        className="home-mobile-nav"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 60,
+          borderBottom: '1px solid rgba(242,240,237,0.08)',
+          backgroundColor: 'rgba(7,7,7,0.95)',
+          backdropFilter: 'blur(12px)',
+          fontFamily: "'JetBrains Mono', monospace",
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem' }}>
+          <span style={{ color: '#f2f0ed', fontSize: '0.875rem', letterSpacing: '0.2em', fontWeight: 300 }}>NORTHERN</span>
+          <button
+            onClick={() => setMobileNavOpen(o => !o)}
+            aria-label="Toggle menu"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f2f0ed', fontSize: '1.25rem', padding: '4px' }}
+          >
+            {mobileNavOpen ? '✕' : '≡'}
+          </button>
+        </div>
+        {mobileNavOpen && (
+          <div style={{
+            borderTop: '1px solid rgba(242,240,237,0.08)',
+            backgroundColor: '#0a0a0a',
+            padding: '1rem 1.25rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+          }}>
+            {menuItems.map(item => (
+              <a
+                key={item.label}
+                href={item.href}
+                style={{
+                  color: '#f2f0ed',
+                  textDecoration: 'none',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.25em',
+                  fontWeight: 400,
+                  opacity: 0.8,
+                }}
+                onClick={() => setMobileNavOpen(false)}
+              >
+                {item.label}
+              </a>
+            ))}
+            <a
+              href="/chat"
+              style={{
+                marginTop: '0.5rem',
+                color: '#070707',
+                backgroundColor: '#f2f0ed',
+                textDecoration: 'none',
+                fontSize: '0.75rem',
+                letterSpacing: '0.2em',
+                fontWeight: 600,
+                padding: '0.6rem 1rem',
+                borderRadius: '0.5rem',
+                textAlign: 'center',
+                display: 'block',
+              }}
+            >
+              OPEN CHAT
+            </a>
+          </div>
+        )}
+      </div>
 
       {/* ── Hero Viewport ── */}
       <div className="relative w-full min-h-screen flex flex-col items-center justify-center pb-32 overflow-hidden">
@@ -223,9 +299,9 @@ function WelcomePage() {
           </a>
         </div>
 
-        {/* Arc Menu — bottom of hero viewport */}
-        <div className="absolute bottom-0 w-full translate-y-[15%] pointer-events-none z-40">
-          <div className="pointer-events-auto">
+        {/* Arc Menu — desktop only, bottom of hero viewport */}
+        <div className="home-arc-menu" style={{ position: 'absolute', bottom: 0, width: '100%', transform: 'translateY(15%)', pointerEvents: 'none', zIndex: 40 }}>
+          <div style={{ pointerEvents: 'auto' }}>
             <CircularMenu />
           </div>
         </div>
