@@ -149,34 +149,34 @@ export default function BusinessPage() {
                         ))}
                     </div>
 
-                    {/* Pricing — single plan + donate */}
+                    {/* Pricing */}
                     <div className="mt-24">
                         <div className="text-center mb-16">
                             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">Simple, transparent pricing</h2>
-                            <p className="text-zinc-400 text-lg max-w-xl mx-auto">Free to use. Help keep NORTHERN running with a donation.</p>
+                            <p className="text-zinc-400 text-lg max-w-xl mx-auto">Early access pricing — locked in for you from day one.</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
 
-                            {/* Maintenance plan */}
-                            <div className="flex flex-col border border-zinc-600 bg-zinc-900 rounded-3xl p-8 relative shadow-2xl shadow-zinc-900/60">
-                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase whitespace-nowrap">
-                                    Always free
-                                </div>
+                            {/* Individual */}
+                            <div className="flex flex-col border border-zinc-800 bg-[#0a0a0a] rounded-3xl p-8">
                                 <div className="mb-8">
-                                    <h3 className="text-lg font-semibold text-white mb-1">NORTHERN</h3>
-                                    <div className="flex items-baseline gap-1 mb-4">
-                                        <span className="text-4xl font-bold text-white">Free</span>
+                                    <p className="text-[10px] font-bold tracking-[0.25em] text-zinc-500 uppercase mb-3">Individual</p>
+                                    <div className="flex items-baseline gap-1 mb-1">
+                                        <span className="text-4xl font-bold text-white">$5</span>
+                                        <span className="text-zinc-400 text-sm font-medium">/month</span>
                                     </div>
-                                    <p className="text-zinc-500 text-sm leading-relaxed">
-                                        Full access to NORTHERN — no subscription required. Donations help cover server and maintenance costs.
-                                    </p>
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <span className="text-zinc-600 text-sm line-through">$12/month</span>
+                                        <span className="text-[10px] font-bold tracking-[0.1em] text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded">EARLY ACCESS</span>
+                                    </div>
+                                    <p className="text-zinc-500 text-sm leading-relaxed">Full stack for solo operators who want NORTHERN running reliably.</p>
                                 </div>
                                 <ul className="space-y-3 flex-1 mb-8">
                                     {[
                                         'Full chat & workflow interface',
-                                        'All specialist agents',
-                                        'Persistent memory',
+                                        'All 9 specialist agents',
+                                        'Unlimited persistent memory',
                                         'All model routing (DeepSeek, OpenAI, Gemini)',
                                         'Custom workflow builder',
                                         'Priority security patches',
@@ -187,22 +187,56 @@ export default function BusinessPage() {
                                         </li>
                                     ))}
                                 </ul>
-                                <a href="/chat" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-white text-black hover:bg-zinc-200">
-                                    Start for free
+                                <a href="/chat" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-zinc-800 text-white hover:bg-zinc-700">
+                                    Get started
+                                </a>
+                            </div>
+
+                            {/* Business & Teams */}
+                            <div className="flex flex-col border-2 border-zinc-400 bg-zinc-900 rounded-3xl p-8 relative shadow-2xl shadow-zinc-900/60">
+                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-black px-4 py-1 rounded-full text-[10px] font-bold tracking-[0.15em] uppercase whitespace-nowrap">
+                                    Recommended
+                                </div>
+                                <div className="mb-8">
+                                    <p className="text-[10px] font-bold tracking-[0.25em] text-zinc-500 uppercase mb-3">Business & Teams</p>
+                                    <div className="flex items-baseline gap-1 mb-1">
+                                        <span className="text-4xl font-bold text-white">$15</span>
+                                        <span className="text-zinc-400 text-sm font-medium">/month per seat</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <span className="text-zinc-600 text-sm line-through">$25/month per seat</span>
+                                        <span className="text-[10px] font-bold tracking-[0.1em] text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded">EARLY ACCESS</span>
+                                    </div>
+                                    <p className="text-zinc-500 text-sm leading-relaxed">For teams that need shared governance, RBAC, and dedicated support.</p>
+                                </div>
+                                <ul className="space-y-3 flex-1 mb-8">
+                                    {[
+                                        'Everything in Individual',
+                                        'Team-level governance & approval chains',
+                                        'Role-based access control per operator',
+                                        'Shared agent workflows across your org',
+                                        'Dedicated onboarding & priority support',
+                                        'Audit logs and compliance reporting',
+                                    ].map((f, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm text-zinc-300">
+                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                                            {f}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <a href="mailto:sales@northern.ai" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-white text-black hover:bg-zinc-200">
+                                    Contact sales
                                 </a>
                             </div>
 
                             {/* Donate */}
-                            <div className="flex flex-col border border-zinc-800 bg-[#0a0a0a] rounded-3xl p-8">
+                            <div className="flex flex-col border border-dashed border-zinc-700 bg-[#0a0a0a] rounded-3xl p-8">
                                 <div className="mb-8">
-                                    <h3 className="text-lg font-semibold text-white mb-1">Donate</h3>
+                                    <p className="text-[10px] font-bold tracking-[0.25em] text-zinc-500 uppercase mb-3">Open Protocol</p>
                                     <div className="flex items-baseline gap-1 mb-4">
-                                        <span className="text-4xl font-bold text-white">Any</span>
-                                        <span className="text-zinc-500 text-sm font-medium"> amount</span>
+                                        <span className="text-4xl font-bold text-white">Donate</span>
                                     </div>
-                                    <p className="text-zinc-500 text-sm leading-relaxed">
-                                        Help keep NORTHERN open-source and free for students. Every dollar funds infrastructure and student access.
-                                    </p>
+                                    <p className="text-zinc-500 text-sm leading-relaxed">Help keep Northern open-source and accessible to students and researchers.</p>
                                 </div>
                                 <ul className="space-y-3 flex-1 mb-8">
                                     {[
@@ -218,7 +252,7 @@ export default function BusinessPage() {
                                     ))}
                                 </ul>
                                 <a href="#" className="w-full py-3.5 rounded-xl flex items-center justify-center text-sm font-semibold transition-colors bg-zinc-800 text-white hover:bg-zinc-700">
-                                    Donate to NORTHERN
+                                    Donate to Northern
                                 </a>
                             </div>
 
