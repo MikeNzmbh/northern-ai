@@ -106,19 +106,19 @@ const CircularMenu = () => {
 
   return (
     <div
-      className="w-full flex justify-center px-2 md:px-6 transition-all duration-500 ease-[cubic-bezier(0.65,0,0.35,1)]"
-      style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(-20px)' }}
+      className="w-full flex justify-center"
+      style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(-20px)', transition: 'all 0.5s cubic-bezier(0.65,0,0.35,1)' }}
     >
       <svg
         viewBox="-220 -8 1640 280"
-        className="w-full max-w-none h-auto overflow-visible"
-        style={{ animation: 'orbital-sway 24s ease-in-out infinite alternate' }}
+        className="w-full max-w-none overflow-visible"
+        style={{ height: '280px', animation: 'orbital-sway 24s ease-in-out infinite alternate' }}
         aria-label="Main Orbital Navigation"
       >
         <defs>
           <path id="menu-curve" d="M 80 252 A 760 760 0 0 1 1120 252" />
         </defs>
-        <text className="font-['JetBrains_Mono'] text-[9px] md:text-[11px] tracking-[0.25em] md:tracking-[0.4em] uppercase" fill="var(--text-bone)">
+        <text className="font-['JetBrains_Mono'] uppercase" fontSize="11" letterSpacing="4" fill="var(--text-bone)">
           <textPath href="#menu-curve" startOffset="50%" textAnchor="middle">
             {menuItems.map((item, index) => {
               const isHovered = hoveredIndex === index;
@@ -127,8 +127,8 @@ const CircularMenu = () => {
                   <tspan
                     className="cursor-pointer pointer-events-auto"
                     style={{
-                      fill: isHovered ? '#ffffff' : hoveredIndex !== null ? 'rgba(242, 240, 237, 0.4)' : '#f2f0ed', // Much brighter default text
-                      filter: isHovered ? 'drop-shadow(0 0 12px rgba(255,255,255,1))' : 'drop-shadow(0 0 4px rgba(242,240,237,0.3))', // Added baseline glow
+                      fill: isHovered ? '#ffffff' : hoveredIndex !== null ? 'rgba(242, 240, 237, 0.4)' : '#f2f0ed',
+                      filter: isHovered ? 'drop-shadow(0 0 12px rgba(255,255,255,1))' : 'drop-shadow(0 0 4px rgba(242,240,237,0.3))',
                       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                     onClick={() => { window.location.href = item.href; }}
@@ -300,8 +300,8 @@ function WelcomePage() {
         </div>
 
         {/* Arc Menu — desktop only, bottom of hero viewport */}
-        <div className="home-arc-menu" style={{ position: 'absolute', bottom: 0, width: '100%', transform: 'translateY(15%)', pointerEvents: 'none', zIndex: 40 }}>
-          <div style={{ pointerEvents: 'auto' }}>
+        <div className="home-arc-menu" style={{ position: 'absolute', bottom: 0, left: 0, width: '100vw', pointerEvents: 'none', zIndex: 40 }}>
+          <div style={{ pointerEvents: 'auto', width: '100%' }}>
             <CircularMenu />
           </div>
         </div>
