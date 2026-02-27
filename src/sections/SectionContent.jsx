@@ -59,7 +59,7 @@ const MinimalCard = ({ children, style = {} }) => (
     </div>
 );
 
-const PricingCard = ({ tier, price, period, primary, features, cta, note }) => (
+const PricingCard = ({ tier, price, period, originalPrice, primary, features, cta, note }) => (
     <div style={{
         border: primary ? '2px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.15)',
         background: primary ? 'rgba(255,255,255,0.04)' : 'transparent',
@@ -68,10 +68,16 @@ const PricingCard = ({ tier, price, period, primary, features, cta, note }) => (
         {primary && <div style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.25em', color: WHITE }}>RECOMMENDED</div>}
         <div>
             <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.5)', marginBottom: '0.75rem' }}>{tier.toUpperCase()}</div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.3rem' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.6rem' }}>
                 <span style={{ fontSize: 'clamp(3rem, 5vw, 4rem)', fontWeight: 300, color: WHITE, letterSpacing: '-0.04em', lineHeight: 1 }}>{price}</span>
                 {period && <span style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.5)', paddingBottom: '6px' }}>{period}</span>}
             </div>
+            {originalPrice && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.4rem' }}>
+                    <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{originalPrice}</span>
+                    <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.15em', color: 'rgba(120,200,120,0.8)', background: 'rgba(100,200,100,0.08)', padding: '2px 8px', borderRadius: '3px', border: '1px solid rgba(100,200,100,0.2)' }}>EARLY ACCESS</span>
+                </div>
+            )}
         </div>
         {note && <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{note}</div>}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '1.5rem' }}>
@@ -318,7 +324,7 @@ export const IndividualsSection = () => (
         <Rule className="mb-16" />
         <div>
             <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.3em', color: LIGHT, marginBottom: '2.5rem' }}>PRICING</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', maxWidth: '1100px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '2rem', maxWidth: '1200px' }}>
                 <PricingCard
                     tier="Student"
                     price="Free"
@@ -329,14 +335,15 @@ export const IndividualsSection = () => (
                         'All 9 specialist agents',
                         'Personality and preferences configuration',
                         'Standard tool and integration access',
-                        'Requires verified .edu email — US &amp; Canada',
+                        'Requires verified .edu email — US & Canada',
                     ]}
                     cta="Verify Student Status"
                 />
                 <PricingCard
-                    tier="Operator"
+                    tier="Individual"
                     price="$5"
                     period="/month"
+                    originalPrice="$12/month"
                     primary
                     note="For individuals who want NORTHERN running reliably, with priority support and the full autonomous workflow stack."
                     features={[
@@ -347,7 +354,23 @@ export const IndividualsSection = () => (
                         'Custom workflow and automation builder',
                         'Priority security patches',
                     ]}
-                    cta="Start for $5/mo"
+                    cta="Get started"
+                />
+                <PricingCard
+                    tier="Business & Teams"
+                    price="$15"
+                    period="/month per seat"
+                    originalPrice="$25/month per seat"
+                    note="For teams and businesses that need shared deployments, team-level governance, and dedicated support."
+                    features={[
+                        'Everything in Individual',
+                        'Team-level governance and approval chains',
+                        'Role-based access control per operator',
+                        'Shared agent workflows across your org',
+                        'Dedicated onboarding and priority support',
+                        'Audit logs and compliance reporting',
+                    ]}
+                    cta="Contact sales"
                 />
                 <DonateCard message="Every contribution funds free access for students and researchers. Help keep operator-grade AI infrastructure accessible to those who need it most." />
             </div>
