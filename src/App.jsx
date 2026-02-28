@@ -14,21 +14,28 @@ import NewsPage from './pages/NewsPage';
 import ArticlePage from './pages/ArticlePage';
 import SolutionsPage from './pages/SolutionsPage';
 import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import DeviceSetupPage from './pages/DeviceSetupPage';
+import ChatLauncherPage from './pages/ChatLauncherPage';
 import Footer from './components/Footer';
 import { useAuth } from './hooks/useAuth';
 import { useSettings } from './hooks/useSettings';
+import { isPublicLauncherProfile } from './lib/runtimeProfile';
 
 // ─── Starfield ────────────────────────────────────────────────────────────────
 const Starfield = () => {
   const snorthern = useMemo(() => {
+    const pseudo = (seed) => {
+      const n = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+      return n - Math.floor(n);
+    };
     return Array.from({ length: 180 }).map((_, i) => ({
       id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2.5 + 0.8,
-      delay: Math.random() * 6,
-      duration: Math.random() * 4 + 3,
+      x: pseudo(i + 1) * 100,
+      y: pseudo(i + 1001) * 100,
+      size: pseudo(i + 2001) * 2.5 + 0.8,
+      delay: pseudo(i + 3001) * 6,
+      duration: pseudo(i + 4001) * 4 + 3,
     }));
   }, []);
 
@@ -355,6 +362,7 @@ export default function App() {
   useEffect(() => {
     mountVercelToolbar();
   }, []);
+  const launcherProfile = isPublicLauncherProfile();
 
   return (
     <BrowserRouter>
@@ -367,11 +375,12 @@ export default function App() {
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<ArticlePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/connect" element={<RequireAuth><DeviceSetupPage /></RequireAuth>} />
-        <Route path="/chat" element={<ChatPortal />} />
-        <Route path="/onboarding" element={<PersonalityOnboarding />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/login" element={launcherProfile ? <ChatLauncherPage /> : <LoginPage />} />
+        <Route path="/signup" element={launcherProfile ? <ChatLauncherPage /> : <SignupPage />} />
+        <Route path="/connect" element={launcherProfile ? <ChatLauncherPage /> : <RequireAuth><DeviceSetupPage /></RequireAuth>} />
+        <Route path="/chat" element={launcherProfile ? <ChatLauncherPage /> : <ChatPortal />} />
+        <Route path="/onboarding" element={launcherProfile ? <ChatLauncherPage /> : <PersonalityOnboarding />} />
+        <Route path="/settings" element={launcherProfile ? <ChatLauncherPage /> : <Settings />} />
         <Route path="*" element={<WelcomePage />} />
       </Routes>
       <Analytics />

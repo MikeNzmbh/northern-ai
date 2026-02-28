@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/studio.css';
-import { requestJson, buildUrl, RECOMMENDED_DEV_BASE } from '../lib/api';
+import { requestJson, RECOMMENDED_DEV_BASE } from '../lib/api';
 import { useSettings } from '../hooks/useSettings';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -96,36 +96,47 @@ function TestConnection({ base }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function Settings() {
-    const { settings, update, isLoading } = useSettings();
-    const [apiBaseUrl, setApiBaseUrl] = useState('');
-    const [operatorToken, setOperatorToken] = useState('');
-    const [actor, setActor] = useState('');
+    const { settings, update } = useSettings();
+    const [apiBaseUrl, setApiBaseUrl] = useState(null);
+    const [operatorToken, setOperatorToken] = useState(null);
+    const [actor, setActor] = useState(null);
     const [saved, setSaved] = useState(false);
     const [profile, setProfile] = useState(null);
     const [profileLoading, setProfileLoading] = useState(false);
     const [profileError, setProfileError] = useState(null);
 
-    useEffect(() => {
-        if (!isLoading) { setApiBaseUrl(settings.apiBaseUrl); setOperatorToken(settings.operatorToken); setActor(settings.actor); }
-    }, [isLoading, settings]);
+    const effectiveApiBaseUrl = apiBaseUrl ?? settings.apiBaseUrl;
+    const effectiveOperatorToken = operatorToken ?? settings.operatorToken;
+    const effectiveActor = actor ?? settings.actor;
 
-    const resolvedBase = useMemo(() => (apiBaseUrl || settings.apiBaseUrl || RECOMMENDED_DEV_BASE).replace(/\/+$/, ''), [apiBaseUrl, settings.apiBaseUrl]);
+    const resolvedBase = useMemo(() => (effectiveApiBaseUrl || RECOMMENDED_DEV_BASE).replace(/\/+$/, ''), [effectiveApiBaseUrl]);
     const brokenConfig = isSelfOrigin(resolvedBase);
 
     useEffect(() => {
-        if (!actor.trim() || brokenConfig) return;
+        if (!effectiveActor.trim() || brokenConfig) return;
         let mounted = true;
-        setProfileLoading(true); setProfileError(null);
-        requestJson(resolvedBase, `/chat/profiles/${encodeURIComponent(actor.trim())}`, { method: 'GET' })
-            .then(d => { if (mounted) setProfile(d); })
-            .catch(e => { if (mounted) setProfileError(e.message); })
-            .finally(() => { if (mounted) setProfileLoading(false); });
-        return () => { mounted = false; };
-    }, [actor, resolvedBase, brokenConfig]);
+        const refreshTimer = window.setTimeout(() => {
+            if (!mounted) return;
+            setProfileLoading(true);
+            setProfileError(null);
+            requestJson(resolvedBase, `/chat/profiles/${encodeURIComponent(effectiveActor.trim())}`, { method: 'GET' })
+                .then(d => { if (mounted) setProfile(d); })
+                .catch(e => { if (mounted) setProfileError(e.message); })
+                .finally(() => { if (mounted) setProfileLoading(false); });
+        }, 0);
+        return () => {
+            mounted = false;
+            window.clearTimeout(refreshTimer);
+        };
+    }, [effectiveActor, resolvedBase, brokenConfig]);
 
     const handleSave = e => {
         e.preventDefault();
-        update({ apiBaseUrl: apiBaseUrl.trim(), operatorToken: operatorToken.trim(), actor: actor.trim() || 'northern_web_user' });
+        update({
+            apiBaseUrl: String(effectiveApiBaseUrl || '').trim(),
+            operatorToken: String(effectiveOperatorToken || '').trim(),
+            actor: String(effectiveActor || '').trim() || 'northern_web_user'
+        });
         setSaved(true); setTimeout(() => setSaved(false), 2500);
     };
 
@@ -155,7 +166,7 @@ export default function Settings() {
 
                     <Field label="API base URL"
                         hint={`Recommended: /api (Vite proxy → 127.0.0.1:8000)  |  Direct: http://127.0.0.1:8000 (requires backend CORS for ${typeof window !== 'undefined' ? window.location.origin : 'your origin'})`}>
-                        <SInput value={apiBaseUrl} onChange={e => setApiBaseUrl(e.target.value)} placeholder="/api" />
+                        <SInput value={effectiveApiBaseUrl || ''} onChange={e => setApiBaseUrl(e.target.value)} placeholder="/api" />
                         {brokenConfig && (
                             <div className="border px-4 py-3 mt-2 space-y-2"
                                 style={{ borderColor: 'rgba(180,140,60,0.3)', background: 'rgba(220,170,60,0.07)' }}>
@@ -180,11 +191,11 @@ export default function Settings() {
                     </Field>
 
                     <Field label="Profile name" hint="Used for chat sessions and saved personality settings.">
-                        <SInput value={actor} onChange={e => setActor(e.target.value)} placeholder="northern_web_user" />
+                        <SInput value={effectiveActor || ''} onChange={e => setActor(e.target.value)} placeholder="northern_web_user" />
                     </Field>
 
                     <Field label="Admin token (dev only)" hint="Needed only for profile save actions in local development. Do not hardcode in production.">
-                        <SInput type="password" value={operatorToken} onChange={e => setOperatorToken(e.target.value)} placeholder="sk-..." />
+                        <SInput type="password" value={effectiveOperatorToken || ''} onChange={e => setOperatorToken(e.target.value)} placeholder="sk-..." />
                     </Field>
 
                     <div className="flex items-center gap-4 pt-2">
@@ -213,7 +224,7 @@ export default function Settings() {
                 <div className="border px-6 py-6 space-y-4" style={{ borderColor: 'var(--border-hairline)' }}>
                     <div className="flex items-center justify-between">
                         <span className="mono-meta" style={{ color: 'var(--text-shadow)' }}>Current profile</span>
-                        {actor && (
+                        {effectiveActor && (
                             <Link to="/onboarding" className="mono-meta px-3 py-1 border transition-colors"
                                 style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-stone)' }}>
                                 Edit personality →

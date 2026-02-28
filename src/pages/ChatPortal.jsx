@@ -4,6 +4,8 @@ import '../styles/studio.css';
 import { requestJson, requestMultipartJson } from '../lib/api';
 import { useSettings } from '../hooks/useSettings';
 import { useAuth } from '../hooks/useAuth';
+import { usePublicConfig } from '../hooks/usePublicConfig';
+import { useRuntimeAwake } from '../hooks/useRuntimeAwake';
 import { useDeviceStatus } from '../hooks/useDeviceStatus';
 import { usePortalQueue } from '../hooks/usePortalQueue';
 import DeviceStatusBadge from '../components/DeviceStatusBadge';
@@ -297,6 +299,12 @@ function isFileDragEvent(event) {
     return types.includes('Files');
 }
 
+function oauthHref(apiBase, startPath, nextPath) {
+    const cleanBase = String(apiBase || '').replace(/\/+$/, '');
+    const cleanStart = String(startPath || '').startsWith('/') ? String(startPath || '') : `/${String(startPath || '')}`;
+    return `${cleanBase}${cleanStart}?next=${encodeURIComponent(nextPath)}`;
+}
+
 function PlusIcon() {
     return (
         <svg
@@ -340,21 +348,19 @@ export default function ChatPortal() {
         [settings.apiBaseUrl]
     );
 
-    // Rule A auth gate with local SSO mock intercept
-    const { user: realUser, loading: authLoading, logout: realLogout } = useAuth(apiBase, false);
-    const [mockAuth, setMockAuth] = useState(false);
-
-    const user = useMemo(() => {
-        return realUser || (mockAuth ? { email: 'demo@northern.com', name: 'Demo Mode' } : null);
-    }, [realUser, mockAuth]);
-
-    const logout = useCallback(() => {
-        if (mockAuth) setMockAuth(false);
-        else realLogout();
-    }, [mockAuth, realLogout]);
+    const { state: runtimeState, loading: runtimeLoading, refresh: refreshRuntime } = useRuntimeAwake(apiBase, true);
+    const authEnabled = runtimeState === 'awake';
+    const { user, loading: authLoading, logout, status: authStatus } = useAuth(apiBase, false, authEnabled);
+    const { publicConfig } = usePublicConfig(apiBase);
+    const googleOauthEnabled = Boolean(publicConfig?.oauth?.google?.enabled);
+    const appleOauthEnabled = Boolean(publicConfig?.oauth?.apple?.enabled);
+    const signupEnabled = Boolean(publicConfig?.signupEnabled ?? true);
+    const googleOauthHref = oauthHref(apiBase, publicConfig?.oauth?.google?.startPath || '/auth/oauth/google/start', '/chat');
+    const appleOauthHref = oauthHref(apiBase, publicConfig?.oauth?.apple?.startPath || '/auth/oauth/apple/start', '/chat');
+    const runtimeUnavailable = runtimeState === 'asleep' || authStatus === 'backend_unreachable';
 
     // Device state
-    const { deviceStatus, refresh: refreshDeviceStatus } = useDeviceStatus(apiBase, user);
+    const { deviceStatus } = useDeviceStatus(apiBase, user);
 
     // Queue state
     const { items: queuePollItems, refresh: refreshQueue } = usePortalQueue(apiBase, user, deviceStatus?.state);
@@ -659,6 +665,11 @@ export default function ChatPortal() {
 
     // ── Boot ──────────────────────────────────────────────────────────────────
     useEffect(() => {
+        if (runtimeLoading) return;
+        if (runtimeState !== 'awake') {
+            setLoading(false);
+            return;
+        }
         if (authLoading) return; // Wait until auth check finishes
 
         if (!user) {
@@ -688,8 +699,7 @@ export default function ChatPortal() {
             }
         })();
         return () => { mounted = false; };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [createSession, ensureSession, loadMessages, authLoading, user]);
+    }, [createSession, ensureSession, loadMessages, authLoading, runtimeLoading, runtimeState, user]);
 
     // Session recovery on sleeping -> online transition
     useEffect(() => {
@@ -834,7 +844,7 @@ export default function ChatPortal() {
             setBusy(false);
             setThinkTs(null);
         }
-    }, [apiBase, busy, createSession, ensureSession, input, pendingAttachments, uploadingFiles]);
+    }, [apiBase, busy, createSession, deviceStatus?.state, ensureSession, input, pendingAttachments, refreshQueue, uploadingFiles]);
 
     useEffect(() => {
         if (!activeSessionId) return undefined;
@@ -844,7 +854,6 @@ export default function ChatPortal() {
         const poll = async () => {
             for (const runId of activeConciergeRunIds) {
                 try {
-                    // eslint-disable-next-line no-await-in-loop
                     await refreshConciergeRun(runId);
                 } catch (err) {
                     if (cancelled) return;
@@ -875,12 +884,79 @@ export default function ChatPortal() {
     }, [createSession]);
 
     // ─────────────────────────────────────────────────────────────────────────
-    if (loading) {
+    if (loading || runtimeLoading) {
         return (
             <div className="studio-page flex items-center justify-center min-h-screen">
                 <span className="mono-meta" style={{ color: 'var(--text-shadow)', animation: 'blink-heavy 1.2s step-end infinite' }}>
                     Starting NORTHERN…
                 </span>
+            </div>
+        );
+    }
+
+    if (runtimeUnavailable) {
+        return (
+            <div className="studio-page min-h-screen relative flex flex-col p-6 md:p-12">
+                <span className="fixed top-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
+                <span className="fixed top-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
+                <span className="fixed bottom-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
+                <span className="fixed bottom-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
+
+                <header className="w-full mb-12">
+                    <h1 className="text-xl font-light tracking-tight text-[var(--text-shadow)]">NORTHERN</h1>
+                </header>
+
+                <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16">
+                    <div className="md:w-48 shrink-0">
+                        <h2 className="mono-meta text-[var(--text-shadow)]">RUNTIME STATUS</h2>
+                    </div>
+                    <div className="flex-1 flex flex-col gap-8">
+                        <div>
+                            <h2 className="text-3xl font-light tracking-tight text-[var(--text-bone)] mb-4">Northern isn’t awake</h2>
+                            <p className="text-[var(--text-stone)] leading-relaxed max-w-xl">
+                                Northern chat is local-first. Start the runtime on this machine, then this page will reconnect automatically.
+                            </p>
+                        </div>
+
+                        <div className="border border-[var(--border-hairline)] p-6 md:p-8 flex flex-col gap-6 w-full animate-reveal" style={{ background: 'rgba(255,255,255,0.01)' }}>
+                            <span className="mono-meta text-[var(--text-ink)]">RECONNECT STEPS</span>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                <div className="flex gap-4">
+                                    <span className="text-[var(--text-shadow)]">01</span>
+                                    <span className="text-[var(--text-ink)]">Open terminal on this device</span>
+                                </div>
+                                <div className="flex gap-4">
+                                    <span className="text-[var(--text-shadow)]">02</span>
+                                    <span className="text-[var(--text-ink)]">Run <span className="text-[var(--text-bone)]">northern status</span></span>
+                                </div>
+                                <div className="flex gap-4">
+                                    <span className="text-[var(--text-shadow)]">03</span>
+                                    <span className="text-[var(--text-ink)]">If stopped, run <span className="text-[var(--text-bone)]">northern up</span></span>
+                                </div>
+                                <div className="flex gap-4">
+                                    <span className="text-[var(--text-shadow)]">04</span>
+                                    <span className="text-[var(--text-ink)]">This page checks every 15s</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-2 flex flex-col sm:flex-row gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => { void refreshRuntime(); }}
+                                    className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors text-left"
+                                >
+                                    Retry now →
+                                </button>
+                                <a
+                                    href="/"
+                                    className="mono-meta border border-[var(--border-hairline)] text-[var(--text-stone)] hover:text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
+                                >
+                                    Back to website
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -1062,7 +1138,7 @@ export default function ChatPortal() {
                                 </div>
 
                                 <h3 className="text-2xl font-light leading-snug relative z-10" style={{ color: 'var(--text-ink)' }}>
-                                    Sign up or continue with<br />Google or Apple
+                                    Sign in to chat with<br />Northern
                                 </h3>
 
                                 <div className="flex flex-col w-full gap-3 mt-2 relative z-10">
@@ -1070,25 +1146,37 @@ export default function ChatPortal() {
                                         <span className="font-medium tracking-wide">Continue with Email</span>
                                     </a>
 
-                                    <div className="flex gap-3">
-                                        <button onClick={() => setMockAuth(true)} className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
-                                            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-                                                <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                                                    <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
-                                                    <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
-                                                    <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
-                                                    <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
-                                                </g>
-                                            </svg>
-                                            <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-3 font-medium text-sm">Google</span>
-                                        </button>
-                                        <button onClick={() => setMockAuth(true)} className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
-                                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" className="shrink-0 -mt-0.5">
-                                                <path d="M16.92 14.88c-.02-2.32 1.9-3.44 1.98-3.49-1.08-1.58-2.76-1.8-3.36-1.82-1.42-.14-2.78.84-3.5.84-.71 0-1.84-.81-3.04-.79-1.55.02-2.98.9-3.78 2.29-1.62 2.8-.41 6.94 1.18 9.22.77 1.11 1.68 2.36 2.89 2.31 1.16-.04 1.61-.75 3.01-.75 1.4 0 1.83.75 3.04.73 1.25-.02 2.05-1.15 2.8-2.26.87-1.27 1.23-2.5 1.24-2.56-.02-.01-2.39-.91-2.41-3.62zM14.99 6.88c.63-.77 1.06-1.83.94-2.88-.91.04-2.02.61-2.67 1.39-.58.68-1.09 1.77-.94 2.8 1.02.08 2.03-.54 2.67-1.31z" />
-                                            </svg>
-                                            <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-2 font-medium text-sm">Apple</span>
-                                        </button>
-                                    </div>
+                                    {signupEnabled && (
+                                        <a href="/signup?next=/chat" className="w-full flex items-center justify-center gap-3 px-6 py-4 border transition-all duration-300 hover:scale-[1.02]" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
+                                            <span className="font-medium tracking-wide">Create account</span>
+                                        </a>
+                                    )}
+
+                                    {(googleOauthEnabled || appleOauthEnabled) && (
+                                        <div className="flex gap-3">
+                                            {googleOauthEnabled && (
+                                                <a href={googleOauthHref} className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
+                                                    <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                                                        <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
+                                                            <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
+                                                            <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z" />
+                                                            <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z" />
+                                                            <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z" />
+                                                        </g>
+                                                    </svg>
+                                                    <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-3 font-medium text-sm">Google</span>
+                                                </a>
+                                            )}
+                                            {appleOauthEnabled && (
+                                                <a href={appleOauthHref} className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
+                                                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" className="shrink-0 -mt-0.5">
+                                                        <path d="M16.92 14.88c-.02-2.32 1.9-3.44 1.98-3.49-1.08-1.58-2.76-1.8-3.36-1.82-1.42-.14-2.78.84-3.5.84-.71 0-1.84-.81-3.04-.79-1.55.02-2.98.9-3.78 2.29-1.62 2.8-.41 6.94 1.18 9.22.77 1.11 1.68 2.36 2.89 2.31 1.16-.04 1.61-.75 3.01-.75 1.4 0 1.83.75 3.04.73 1.25-.02 2.05-1.15 2.8-2.26.87-1.27 1.23-2.5 1.24-2.56-.02-.01-2.39-.91-2.41-3.62zM14.99 6.88c.63-.77 1.06-1.83.94-2.88-.91.04-2.02.61-2.67 1.39-.58.68-1.09 1.77-.94 2.8 1.02.08 2.03-.54 2.67-1.31z" />
+                                                    </svg>
+                                                    <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap transition-all duration-300 group-hover:max-w-[70px] group-hover:opacity-100 group-hover:ml-2 font-medium text-sm">Apple</span>
+                                                </a>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ) : (
