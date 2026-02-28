@@ -119,7 +119,7 @@ const CircularMenu = () => {
       <svg
         viewBox="-220 -8 1640 280"
         className="w-full max-w-none overflow-visible"
-        style={{ height: '280px', animation: 'orbital-sway 24s ease-in-out infinite alternate' }}
+        style={{ height: 'auto', animation: 'orbital-sway 24s ease-in-out infinite alternate' }}
         aria-label="Main Orbital Navigation"
       >
         <defs>
@@ -271,11 +271,9 @@ function WelcomePage() {
       </div>
 
       {/* ── Hero Viewport ── */}
-      <div className="relative w-full min-h-screen flex flex-col items-center justify-center pb-32 overflow-hidden">
+      <div className="relative w-full min-h-screen flex flex-col items-center overflow-hidden">
         {/* Depth radial gradient */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,#070707_80%)] pointer-events-none z-0" />
-
-
 
         {/* Starfield */}
         <Starfield />
@@ -286,28 +284,30 @@ function WelcomePage() {
           style={{ background: 'radial-gradient(circle, rgba(242,240,237,0.06) 0%, transparent 70%)', animation: 'glow-pulse 6s ease-in-out infinite' }}
         />
 
-        {/* Hero lockup */}
-        <div className="relative z-10 flex flex-col items-center gap-6 mt-16 md:mt-24">
-          {/* Symbol + wordmark row */}
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-10 group">
-            <AgentSymbol />
-            <div className="hidden md:block w-[1px] h-20 bg-gradient-to-b from-transparent via-[var(--text-stone)] to-transparent opacity-30 group-hover:opacity-70 transition-opacity duration-700" />
-            <NorthernLogo />
+        <div className="flex-1 flex flex-col items-center justify-center w-full z-10 py-10 relative">
+          {/* Hero lockup */}
+          <div className="relative z-10 flex flex-col items-center gap-6 mt-4 md:mt-10">
+            {/* Symbol + wordmark row */}
+            <div className="flex flex-col md:flex-row items-center gap-8 md:gap-10 group">
+              <AgentSymbol />
+              <div className="hidden md:block w-[1px] h-20 bg-gradient-to-b from-transparent via-[var(--text-stone)] to-transparent opacity-30 group-hover:opacity-70 transition-opacity duration-700" />
+              <NorthernLogo />
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="relative z-10 flex flex-col items-center text-center gap-4 mt-10 w-full px-6" style={{ animation: 'cta-rise 1.2s ease-out 0.6s both' }}>
+            <a
+              href="/chat"
+              className="mx-auto block bg-[var(--text-bone)] text-[#070707] font-semibold px-14 py-4 rounded-xl text-sm tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:shadow-[0_0_40px_rgba(242,240,237,0.25)] active:scale-[0.98]"
+            >
+              Open Chat
+            </a>
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="relative z-10 flex flex-col items-center text-center gap-4 mt-10 w-full px-6" style={{ animation: 'cta-rise 1.2s ease-out 0.6s both' }}>
-          <a
-            href="/chat"
-            className="mx-auto block bg-[var(--text-bone)] text-[#070707] font-semibold px-14 py-4 rounded-xl text-sm tracking-[0.2em] uppercase transition-all duration-300 hover:bg-white hover:shadow-[0_0_40px_rgba(242,240,237,0.25)] active:scale-[0.98]"
-          >
-            Open Chat
-          </a>
-        </div>
-
         {/* Arc Menu — desktop only, bottom of hero viewport */}
-        <div className="home-arc-menu" style={{ position: 'absolute', bottom: 0, left: 0, width: '100vw', pointerEvents: 'none', zIndex: 40 }}>
+        <div className="home-arc-menu mt-auto" style={{ width: '100vw', pointerEvents: 'none', zIndex: 40 }}>
           <div style={{ pointerEvents: 'auto', width: '100%' }}>
             <CircularMenu />
           </div>
