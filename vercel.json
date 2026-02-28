@@ -4,10 +4,6 @@
     },
     "rewrites": [
         {
-            "source": "/api/:path*",
-            "destination": "https://api.northern.ai/:path*"
-        },
-        {
             "source": "/(.*)",
             "destination": "/index.html"
         }
