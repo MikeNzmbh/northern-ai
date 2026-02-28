@@ -83,6 +83,11 @@ This frontend supports two explicit runtime profiles:
   - `VITE_NORTHERN_OAUTH_GOOGLE=true|false`
   - `VITE_NORTHERN_OAUTH_APPLE=true|false`
 
+### Vercel server env (for hosted auth onboarding)
+- `NORTHERN_AUTH_API_BASE=https://<your-auth-backend-host>`
+- `/api/*` is handled by `api/[...path].js`, which proxies to `NORTHERN_AUTH_API_BASE` when set.
+- If not set, `/api/*` degrades to launcher-safe responses (no hard 502 crash).
+
 ### Backend contract used by this frontend
 - `GET /health/live`
 - `GET /auth/public-config`
