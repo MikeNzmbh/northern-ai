@@ -894,7 +894,7 @@ export default function ChatPortal() {
         );
     }
 
-    if (runtimeUnavailable) {
+    if (runtimeUnavailable && user) {
         return (
             <div className="studio-page min-h-screen relative flex flex-col p-6 md:p-12">
                 <span className="fixed top-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
