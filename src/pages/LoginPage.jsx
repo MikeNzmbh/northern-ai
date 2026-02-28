@@ -1,67 +1,75 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { requestJson } from '../lib/api';
-import { usePublicConfig } from '../hooks/usePublicConfig';
+import { requireSupabaseClient, supabaseConfigured } from '../lib/supabaseClient';
 
-function oauthHref(apiBase, startPath, nextPath) {
-    const cleanBase = String(apiBase || '').replace(/\/+$/, '');
-    const cleanStart = String(startPath || '').startsWith('/') ? String(startPath || '') : `/${String(startPath || '')}`;
-    return `${cleanBase}${cleanStart}?next=${encodeURIComponent(nextPath)}`;
+function envEnabled(name, defaultValue = true) {
+    const raw = import.meta.env?.[name];
+    if (raw == null || raw === '') return defaultValue;
+    return String(raw).toLowerCase() !== 'false';
 }
 
 export default function LoginPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const searchParams = new URLSearchParams(location.search);
-    const nextParams = searchParams.get('next') || '/chat';
-    const apiBase = '/api';
+    const nextPath = searchParams.get('next') || '/chat';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { publicConfig } = usePublicConfig(apiBase);
-    const googleEnabled = Boolean(publicConfig?.oauth?.google?.enabled);
-    const appleEnabled = Boolean(publicConfig?.oauth?.apple?.enabled);
-    const signupEnabled = Boolean(publicConfig?.signupEnabled ?? true);
-    const googleHref = oauthHref(apiBase, publicConfig?.oauth?.google?.startPath || '/auth/oauth/google/start', nextParams);
-    const appleHref = oauthHref(apiBase, publicConfig?.oauth?.apple?.startPath || '/auth/oauth/apple/start', nextParams);
+    const googleEnabled = useMemo(() => envEnabled('VITE_NORTHERN_OAUTH_GOOGLE', true), []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email || !password) return;
+        if (!supabaseConfigured) {
+            setError('Supabase is not configured for this deployment.');
+            return;
+        }
 
         setLoading(true);
         setError(null);
+        const client = requireSupabaseClient();
+        const { error: signInError } = await client.auth.signInWithPassword({
+            email: email.trim(),
+            password,
+        });
+        if (signInError) {
+            setError(signInError.message || 'Failed to sign in.');
+            setLoading(false);
+            return;
+        }
+        navigate(nextPath, { replace: true });
+    };
 
-        try {
-            await requestJson(apiBase, '/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ email, password })
-            });
-
-            // login success (cookie set)
-            navigate(nextParams, { replace: true });
-        } catch (err) {
-            if (err?.status === 401) {
-                setError('Invalid email or password.');
-            } else {
-                setError(err.message || 'Failed to sign in.');
-            }
+    const handleGoogle = async () => {
+        if (!supabaseConfigured) {
+            setError('Supabase is not configured for this deployment.');
+            return;
+        }
+        setLoading(true);
+        setError(null);
+        const client = requireSupabaseClient();
+        const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+        const { error: oauthError } = await client.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo },
+        });
+        if (oauthError) {
+            setError(oauthError.message || 'Could not start Google sign-in.');
             setLoading(false);
         }
     };
 
     return (
         <div className="studio-page min-h-screen relative flex items-center justify-center p-6">
-            {/* Corner marks */}
             <span className="fixed top-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
             <span className="fixed top-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
             <span className="fixed bottom-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
             <span className="fixed bottom-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
 
             <div className="w-full max-w-[520px] animate-reveal">
-
                 {error && (
                     <div className="mb-6 border border-[var(--border-hairline)] px-4 py-3 mono-meta text-[var(--text-shadow)]" aria-live="polite">
                         {error}
@@ -70,7 +78,7 @@ export default function LoginPage() {
 
                 <div className="mb-6">
                     <h1 className="mono-meta text-[var(--text-stone)] text-xs mb-1">SIGN IN</h1>
-                    <p className="mono-meta text-[var(--text-shadow)]">Sign in to chat with Northern from this device-connected session.</p>
+                    <p className="mono-meta text-[var(--text-shadow)]">Sign in to your Northern account.</p>
                 </div>
 
                 <form
@@ -117,33 +125,24 @@ export default function LoginPage() {
 
                         <div className="w-full sm:w-auto flex flex-col gap-2">
                             {googleEnabled && (
-                                <a
-                                    href={googleHref}
-                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
+                                <button
+                                    type="button"
+                                    onClick={handleGoogle}
+                                    disabled={loading}
+                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)] text-left"
                                 >
                                     Continue with Google →
-                                </a>
-                            )}
-                            {appleEnabled && (
-                                <a
-                                    href={appleHref}
-                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
-                                >
-                                    Continue with Apple →
-                                </a>
+                                </button>
                             )}
                         </div>
                     </div>
                 </form>
 
                 <div className="mt-8 text-center text-[var(--text-shadow)] mono-meta">
-                    {signupEnabled ? (
-                        <>Need an account? <a href={`/signup?next=${encodeURIComponent(nextParams)}`} className="text-[var(--text-stone)] hover:text-[var(--text-bone)]">Create one →</a></>
-                    ) : (
-                        <>Sign up is disabled for this deployment.</>
-                    )}
+                    Need an account? <a href={`/signup?next=${encodeURIComponent(nextPath)}`} className="text-[var(--text-stone)] hover:text-[var(--text-bone)]">Create one →</a>
                 </div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }
+

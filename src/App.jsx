@@ -15,6 +15,7 @@ import ArticlePage from './pages/ArticlePage';
 import SolutionsPage from './pages/SolutionsPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 import DeviceSetupPage from './pages/DeviceSetupPage';
 import ChatLauncherPage from './pages/ChatLauncherPage';
 import Footer from './components/Footer';
@@ -377,6 +378,7 @@ export default function App() {
         <Route path="/news/:id" element={<ArticlePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="/connect" element={launcherProfile ? <ChatLauncherPage /> : <RequireAuth><DeviceSetupPage /></RequireAuth>} />
         <Route path="/chat" element={launcherProfile ? <ChatLauncherPage /> : <ChatPortal />} />
         <Route path="/onboarding" element={launcherProfile ? <ChatLauncherPage /> : <PersonalityOnboarding />} />

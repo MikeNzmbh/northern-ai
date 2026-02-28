@@ -1,7 +1,22 @@
+import { useMemo } from 'react';
 import { getLocalPortalUrl } from '../lib/runtimeProfile';
+import { useAuth } from '../hooks/useAuth';
+import { useSupabaseDevicePresence } from '../hooks/useSupabaseDevicePresence';
 
 export default function ChatLauncherPage() {
     const localPortalUrl = getLocalPortalUrl();
+    const { user, loading: authLoading } = useAuth('/api', false, true);
+    const { state: presenceState, primary: primaryDevice } = useSupabaseDevicePresence(user);
+    const statusCopy = useMemo(() => {
+        if (!user) return 'Sign in to load your device status.';
+        if (presenceState === 'online') {
+            return `Northern is online on ${primaryDevice?.device_name || primaryDevice?.install_id || 'your device'}. Open local portal to chat.`;
+        }
+        if (presenceState === 'not_set_up') {
+            return 'No linked Northern device found yet. Start Northern locally and link your device.';
+        }
+        return `Northern is sleeping on ${primaryDevice?.device_name || primaryDevice?.install_id || 'your device'}. Start runtime to continue.`;
+    }, [presenceState, primaryDevice, user]);
 
     return (
         <div className="studio-page min-h-screen relative flex flex-col p-6 md:p-12">
@@ -23,25 +38,33 @@ export default function ChatLauncherPage() {
                     <div>
                         <h2 className="text-3xl font-light tracking-tight text-[var(--text-bone)] mb-4">Northern isn’t awake</h2>
                         <p className="text-[var(--text-stone)] leading-relaxed max-w-xl">
-                            You can create an account now, then start your local runtime to chat. Northern runs on your own device for full access.
+                            {statusCopy}
                         </p>
                     </div>
 
                     <div className="border border-[var(--border-hairline)] p-6 md:p-8 flex flex-col gap-6 w-full animate-reveal" style={{ background: 'rgba(255,255,255,0.01)' }}>
                         <span className="mono-meta text-[var(--text-ink)]">ACCOUNT</span>
                         <div className="flex flex-col sm:flex-row gap-3">
-                            <a
-                                href="/login?next=%2Fchat"
-                                className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
-                            >
-                                Sign in →
-                            </a>
-                            <a
-                                href="/signup?next=%2Fchat"
-                                className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
-                            >
-                                Create account →
-                            </a>
+                            {!authLoading && !user ? (
+                                <>
+                                    <a
+                                        href="/login?next=%2Fchat"
+                                        className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
+                                    >
+                                        Sign in →
+                                    </a>
+                                    <a
+                                        href="/signup?next=%2Fchat"
+                                        className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
+                                    >
+                                        Create account →
+                                    </a>
+                                </>
+                            ) : (
+                                <span className="mono-meta text-[var(--text-stone)]">
+                                    Signed in{user?.email ? ` as ${user.email}` : ''}.
+                                </span>
+                            )}
                         </div>
                     </div>
 

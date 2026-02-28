@@ -1,3 +1,5 @@
+import { getSupabaseAccessToken } from './supabaseClient';
+
 const DEFAULT_API_BASE = 'http://127.0.0.1:8000';
 
 // Recommended dev default: /api (proxied by Vite → Northern backend, avoids CORS entirely)
@@ -47,13 +49,18 @@ export function buildUrl(base, path) {
  */
 export async function requestJson(base, path, init = {}) {
     const url = buildUrl(base, path);
+    const token = await getSupabaseAccessToken();
+    const mergedHeaders = {
+        'content-type': 'application/json',
+        ...(init.headers || {}),
+    };
+    if (token && !mergedHeaders.Authorization && !mergedHeaders.authorization) {
+        mergedHeaders.Authorization = `Bearer ${token}`;
+    }
     const response = await fetch(url, {
         credentials: 'include',
         ...init,
-        headers: {
-            'content-type': 'application/json',
-            ...(init.headers || {}),
-        },
+        headers: mergedHeaders,
     });
 
     const text = await response.text();
@@ -89,9 +96,17 @@ export async function requestJson(base, path, init = {}) {
  */
 export async function requestMultipartJson(base, path, formData, init = {}) {
     const url = buildUrl(base, path);
+    const token = await getSupabaseAccessToken();
+    const mergedHeaders = {
+        ...(init.headers || {}),
+    };
+    if (token && !mergedHeaders.Authorization && !mergedHeaders.authorization) {
+        mergedHeaders.Authorization = `Bearer ${token}`;
+    }
     const response = await fetch(url, {
         credentials: 'include',
         ...init,
+        headers: mergedHeaders,
         body: formData,
     });
 
