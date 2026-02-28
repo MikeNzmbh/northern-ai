@@ -27,7 +27,8 @@ The public website never runs full local chat directly from the cloud host.
 
 ### Required
 - `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+- `VITE_SUPABASE_PUBLISHABLE_KEY` (preferred)
+  - `VITE_SUPABASE_ANON_KEY` is also accepted for compatibility.
 
 ### Runtime profile
 - `VITE_NORTHERN_RUNTIME_PROFILE=local|public_launcher`
@@ -45,7 +46,7 @@ The public website never runs full local chat directly from the cloud host.
 
 1. Create project and copy:
 - Project URL
-- anon public key
+- publishable key (frontend-safe)
 
 2. Configure Auth:
 - Enable Email/Password
@@ -116,7 +117,7 @@ npm run build
 ## Troubleshooting
 
 1. `Supabase is not configured for this deployment`
-- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (or `VITE_SUPABASE_ANON_KEY`).
 
 2. OAuth returns to a blank/error callback
 - Verify Supabase redirect URLs include `/auth/callback` for your exact domain.
