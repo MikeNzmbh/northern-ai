@@ -1031,6 +1031,7 @@ export default function ChatPortal() {
                                 { label: 'New session', onClick: startNew },
                                 { label: 'Personality', to: '/onboarding' },
                                 { label: 'Settings', to: '/settings' },
+                                ...(user ? [{ label: 'Dashboard', to: '/dashboard' }] : []),
                                 { label: 'Home', to: '/' },
                                 ...(user ? [{ label: 'Logout', onClick: logout }] : [{ label: 'Sign in', onClick: () => window.location.href = '/login?next=/chat' }])
                             ].map(item => item.to ? (
@@ -1086,6 +1087,7 @@ export default function ChatPortal() {
                                 { label: 'New session', onClick: startNew },
                                 { label: 'Personality', to: '/onboarding' },
                                 { label: 'Settings', to: '/settings' },
+                                ...(user ? [{ label: 'Dashboard', to: '/dashboard' }] : []),
                                 { label: 'Home', to: '/' },
                                 ...(user ? [{ label: 'Logout', onClick: logout }] : [{ label: 'Sign in', onClick: () => window.location.href = '/login?next=/chat' }])
                             ].map(item => item.to ? (

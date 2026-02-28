@@ -19,6 +19,7 @@ import AuthCallbackPage from './pages/AuthCallbackPage';
 import DeviceSetupPage from './pages/DeviceSetupPage';
 import ChatLauncherPage from './pages/ChatLauncherPage';
 import SetupGuidePage from './pages/SetupGuidePage';
+import AgentDashboardPage from './pages/AgentDashboardPage';
 import Footer from './components/Footer';
 import { useAuth } from './hooks/useAuth';
 import { useSettings } from './hooks/useSettings';
@@ -460,6 +461,7 @@ export default function App() {
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route path="/connect" element={launcherProfile ? <ChatLauncherPage /> : <RequireAuth><DeviceSetupPage /></RequireAuth>} />
         <Route path="/chat" element={launcherProfile ? <ChatLauncherPage /> : <ChatPortal />} />
+        <Route path="/dashboard" element={launcherProfile ? <ChatLauncherPage /> : <RequireAuth><AgentDashboardPage /></RequireAuth>} />
         <Route path="/onboarding" element={launcherProfile ? <ChatLauncherPage /> : <PersonalityOnboarding />} />
         <Route path="/settings" element={launcherProfile ? <ChatLauncherPage /> : <Settings />} />
         <Route path="*" element={<WelcomePage />} />
