@@ -375,8 +375,8 @@ export default function App() {
         <Route path="/stories" element={<StoriesPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<ArticlePage />} />
-        <Route path="/login" element={launcherProfile ? <ChatLauncherPage /> : <LoginPage />} />
-        <Route path="/signup" element={launcherProfile ? <ChatLauncherPage /> : <SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/connect" element={launcherProfile ? <ChatLauncherPage /> : <RequireAuth><DeviceSetupPage /></RequireAuth>} />
         <Route path="/chat" element={launcherProfile ? <ChatLauncherPage /> : <ChatPortal />} />
         <Route path="/onboarding" element={launcherProfile ? <ChatLauncherPage /> : <PersonalityOnboarding />} />

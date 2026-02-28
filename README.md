@@ -69,6 +69,7 @@ This frontend supports two explicit runtime profiles:
 
 2. `public_launcher`
    - `/chat` is launcher-only.
+   - `/login` and `/signup` remain available for onboarding/auth.
    - No full chat API loop from public website to a local machine.
    - Guides users to open their local portal once `northern up` is running.
    - Forced automatically on non-local/public hosts as a production safety guard.

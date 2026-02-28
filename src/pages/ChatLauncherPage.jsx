@@ -23,8 +23,26 @@ export default function ChatLauncherPage() {
                     <div>
                         <h2 className="text-3xl font-light tracking-tight text-[var(--text-bone)] mb-4">Northern isn’t awake</h2>
                         <p className="text-[var(--text-stone)] leading-relaxed max-w-xl">
-                            Northern chat runs on your own device. Start your local runtime, then open the local portal to sign in and chat.
+                            You can create an account now, then start your local runtime to chat. Northern runs on your own device for full access.
                         </p>
+                    </div>
+
+                    <div className="border border-[var(--border-hairline)] p-6 md:p-8 flex flex-col gap-6 w-full animate-reveal" style={{ background: 'rgba(255,255,255,0.01)' }}>
+                        <span className="mono-meta text-[var(--text-ink)]">ACCOUNT</span>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <a
+                                href="/login?next=%2Fchat"
+                                className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
+                            >
+                                Sign in →
+                            </a>
+                            <a
+                                href="/signup?next=%2Fchat"
+                                className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
+                            >
+                                Create account →
+                            </a>
+                        </div>
                     </div>
 
                     <div className="border border-[var(--border-hairline)] p-6 md:p-8 flex flex-col gap-6 w-full animate-reveal" style={{ background: 'rgba(255,255,255,0.01)' }}>
@@ -68,4 +86,3 @@ export default function ChatLauncherPage() {
         </div>
     );
 }
-
