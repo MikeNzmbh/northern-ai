@@ -65,11 +65,13 @@ This frontend supports two explicit runtime profiles:
    - `/chat` is full chat + login/signup.
    - Expects a local NORTHERN backend (`/api` via Vite proxy).
    - Uses runtime probe (`GET /health/live`) to show a clear "Northern isn’t awake" state when backend is down.
+   - Active only on local hostnames (`localhost`, `127.0.0.1`, `[::1]`).
 
 2. `public_launcher`
    - `/chat` is launcher-only.
    - No full chat API loop from public website to a local machine.
    - Guides users to open their local portal once `northern up` is running.
+   - Forced automatically on non-local/public hosts as a production safety guard.
 
 ### Required frontend env
 - `VITE_NORTHERN_API_BASE=/api`
