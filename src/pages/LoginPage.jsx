@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { requestJson } from '../lib/api';
 
 export default function LoginPage() {
@@ -13,9 +13,8 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Optional: detect if public signup is enabled via env var (often passed to vite via VITE_NORTHERN_ALLOW_PUBLIC_SIGNUP)
-    // If not, we just show the "contact admin" text. We assume it's disabled by default.
-    const PUBLIC_SIGNUP_ENABLED = import.meta.env.VITE_NORTHERN_ALLOW_PUBLIC_SIGNUP === 'true';
+    const OAUTH_GOOGLE_ENABLED = import.meta.env.VITE_NORTHERN_OAUTH_GOOGLE !== 'false';
+    const OAUTH_APPLE_ENABLED = import.meta.env.VITE_NORTHERN_OAUTH_APPLE !== 'false';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -108,19 +107,29 @@ export default function LoginPage() {
                             )}
                         </button>
 
-                        {PUBLIC_SIGNUP_ENABLED && (
-                            <Link
-                                to={`/signup?next=${encodeURIComponent(nextParams)}`}
-                                className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
-                            >
-                                Continue with Google →
-                            </Link>
-                        )}
+                        <div className="w-full sm:w-auto flex flex-col gap-2">
+                            {OAUTH_GOOGLE_ENABLED && (
+                                <a
+                                    href={`/api/auth/oauth/google/start?next=${encodeURIComponent(nextParams)}`}
+                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
+                                >
+                                    Continue with Google →
+                                </a>
+                            )}
+                            {OAUTH_APPLE_ENABLED && (
+                                <a
+                                    href={`/api/auth/oauth/apple/start?next=${encodeURIComponent(nextParams)}`}
+                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
+                                >
+                                    Continue with Apple →
+                                </a>
+                            )}
+                        </div>
                     </div>
                 </form>
 
                 <div className="mt-8 text-center text-[var(--text-shadow)] mono-meta">
-                    {!PUBLIC_SIGNUP_ENABLED && "Don't have access? Contact your administrator."}
+                    {!OAUTH_GOOGLE_ENABLED && !OAUTH_APPLE_ENABLED && "Don't have access? Contact your administrator."}
                 </div>
             </div >
         </div >

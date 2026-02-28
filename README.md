@@ -73,6 +73,9 @@ Use a same-origin API proxy on Vercel so browser requests stay on one origin and
    - `COOKIE_SAMESITE=lax`
    - `CORS_ALLOW_ORIGINS=https://app.northern.ai`
    - Optional for cross-subdomain cookies: `COOKIE_DOMAIN=.northern.ai`
+4. Optional UI toggles for social buttons:
+   - `VITE_NORTHERN_OAUTH_GOOGLE=true`
+   - `VITE_NORTHERN_OAUTH_APPLE=true`
 
 ### Verify
 - Login from the website and confirm protected endpoints return 200 with `credentials: include`.
