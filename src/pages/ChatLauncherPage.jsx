@@ -5,7 +5,7 @@ import { useSupabaseDevicePresence } from '../hooks/useSupabaseDevicePresence';
 
 export default function ChatLauncherPage() {
     const localPortalUrl = getLocalPortalUrl();
-    const { user, loading: authLoading } = useAuth('/api', false, true);
+    const { user, loading: authLoading, logout } = useAuth('/api', false, true);
     const { state: presenceState, primary: primaryDevice } = useSupabaseDevicePresence(user);
     const statusCopy = useMemo(() => {
         if (!user) return 'Sign in to load your device status.';
@@ -25,8 +25,17 @@ export default function ChatLauncherPage() {
             <span className="fixed bottom-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
             <span className="fixed bottom-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
 
-            <header className="w-full mb-12">
+            <header className="w-full mb-12 flex items-center justify-between gap-4">
                 <h1 className="text-xl font-light tracking-tight text-[var(--text-shadow)]">NORTHERN</h1>
+                {!authLoading && user ? (
+                    <button
+                        type="button"
+                        onClick={() => void logout()}
+                        className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-stone)] hover:text-[var(--text-bone)] px-4 py-2 transition-colors"
+                    >
+                        Log out
+                    </button>
+                ) : null}
             </header>
 
             <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16">
@@ -61,9 +70,18 @@ export default function ChatLauncherPage() {
                                     </a>
                                 </>
                             ) : (
-                                <span className="mono-meta text-[var(--text-stone)]">
-                                    Signed in{user?.email ? ` as ${user.email}` : ''}.
-                                </span>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <span className="mono-meta text-[var(--text-stone)]">
+                                        Signed in{user?.email ? ` as ${user.email}` : ''}.
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => void logout()}
+                                        className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-stone)] hover:text-[var(--text-bone)] px-4 py-2 transition-colors text-left sm:text-center"
+                                    >
+                                        Log out
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>

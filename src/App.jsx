@@ -163,6 +163,7 @@ const CircularMenu = () => {
 // ─── Welcome / Home Page ──────────────────────────────────────────────────────
 function WelcomePage() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { user, loading: authLoading, logout } = useAuth('/api', false, true);
   return (
     <div className="relative w-screen min-h-screen bg-[#070707] flex flex-col items-center selection:bg-[rgba(242,240,237,0.2)] overflow-x-hidden font-['JetBrains_Mono']">
       <style dangerouslySetInnerHTML={{
@@ -267,7 +268,83 @@ function WelcomePage() {
             >
               OPEN CHAT
             </a>
+            {!authLoading && user ? (
+              <button
+                type="button"
+                onClick={() => {
+                  void logout();
+                  setMobileNavOpen(false);
+                }}
+                style={{
+                  marginTop: '0.5rem',
+                  color: '#f2f0ed',
+                  backgroundColor: 'transparent',
+                  border: '1px solid rgba(242,240,237,0.18)',
+                  textDecoration: 'none',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.2em',
+                  fontWeight: 600,
+                  padding: '0.6rem 1rem',
+                  borderRadius: '0.5rem',
+                  textAlign: 'center',
+                  display: 'block',
+                  cursor: 'pointer',
+                }}
+              >
+                LOG OUT
+              </button>
+            ) : (
+              <a
+                href="/login"
+                style={{
+                  marginTop: '0.5rem',
+                  color: '#f2f0ed',
+                  backgroundColor: 'transparent',
+                  border: '1px solid rgba(242,240,237,0.18)',
+                  textDecoration: 'none',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.2em',
+                  fontWeight: 600,
+                  padding: '0.6rem 1rem',
+                  borderRadius: '0.5rem',
+                  textAlign: 'center',
+                  display: 'block',
+                }}
+                onClick={() => setMobileNavOpen(false)}
+              >
+                SIGN IN
+              </a>
+            )}
           </div>
+        )}
+      </div>
+
+      {/* ── Desktop Auth Action ── */}
+      <div
+        className="hidden sm:flex"
+        style={{
+          position: 'fixed',
+          top: '1.2rem',
+          right: '1.2rem',
+          zIndex: 60,
+          alignItems: 'center',
+        }}
+      >
+        {!authLoading && user ? (
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="mono-meta border border-white/20 hover:border-white/40 text-[var(--text-bone)]/85 hover:text-[var(--text-bone)] px-4 py-2 transition-colors"
+          >
+            Log out
+          </button>
+        ) : (
+          <a
+            href="/login"
+            className="mono-meta border border-white/20 hover:border-white/40 text-[var(--text-bone)]/85 hover:text-[var(--text-bone)] px-4 py-2 transition-colors"
+          >
+            Sign in
+          </a>
         )}
       </div>
 
