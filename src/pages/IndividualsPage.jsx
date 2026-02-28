@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ArrowUpRight } from 'lucide-react';
+import { NORTHERN_DOWNLOAD_LINKS } from '../lib/downloadLinks';
 
 const features = [
     {
@@ -62,10 +63,20 @@ export default function IndividualsPage() {
                                 Open Web Client
                                 <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                             </a>
-                            <a href="#" className="bg-zinc-900 border border-zinc-800 text-white px-6 py-3 rounded-full font-medium hover:bg-zinc-800 transition-colors">
+                            <a
+                                href={NORTHERN_DOWNLOAD_LINKS.macos}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="bg-zinc-900 border border-zinc-800 text-white px-6 py-3 rounded-full font-medium hover:bg-zinc-800 transition-colors"
+                            >
                                 Download for macOS
                             </a>
-                            <a href="#" className="bg-zinc-900 border border-zinc-800 text-white px-6 py-3 rounded-full font-medium hover:bg-zinc-800 transition-colors">
+                            <a
+                                href={NORTHERN_DOWNLOAD_LINKS.windows}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="bg-zinc-900 border border-zinc-800 text-white px-6 py-3 rounded-full font-medium hover:bg-zinc-800 transition-colors"
+                            >
                                 Download for Windows
                             </a>
                         </div>

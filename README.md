@@ -41,6 +41,9 @@ The public website never runs full local chat directly from the cloud host.
 - `VITE_NORTHERN_PRESENCE_STALE_SECONDS=60`
 - `VITE_NORTHERN_OAUTH_GOOGLE=true`
 - `VITE_NORTHERN_OAUTH_APPLE=false`
+- `VITE_NORTHERN_RELEASE_REPO=MikeNzmbh/northern-ai`
+- `VITE_NORTHERN_RELEASE_BASE=https://github.com/<owner>/<repo>/releases/latest/download`
+  - If `VITE_NORTHERN_RELEASE_BASE` is not set, the frontend computes download links from `VITE_NORTHERN_RELEASE_REPO`.
 
 ## Supabase Setup
 
@@ -125,3 +128,9 @@ npm run build
 3. Public `/chat` shows sleeping
 - Confirm local Northern runtime is running and sending heartbeat.
 - Confirm backend has Supabase presence sync enabled.
+
+4. Download buttons point to wrong repository
+- Set `VITE_NORTHERN_RELEASE_REPO` (or `VITE_NORTHERN_RELEASE_BASE`) and redeploy.
+- Expected installer asset names:
+  - `northern-installer-darwin.zip`
+  - `northern-installer-windows.zip`
