@@ -45,7 +45,7 @@ export default function Footer({ className = '' }) {
                             <h4 className="text-white text-sm font-semibold mb-2">Resources</h4>
                             <a href="/stories" className="text-zinc-400 hover:text-white transition-colors text-sm">Examples</a>
                             <a href="/news" className="text-zinc-400 hover:text-white transition-colors text-sm">Roadmap & News</a>
-                            <a href="#" className="text-zinc-400 hover:text-white transition-colors text-sm">Getting Started</a>
+                            <a href="/setup" className="text-zinc-400 hover:text-white transition-colors text-sm">Getting Started</a>
                             <a href="#" className="text-zinc-400 hover:text-white transition-colors text-sm">API Reference</a>
                         </div>
                         <div className="flex flex-col gap-4">

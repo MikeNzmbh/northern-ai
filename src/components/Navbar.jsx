@@ -51,6 +51,15 @@ export default function Navbar({ title = 'NORTHERN Home', backLink = '/' }) {
                         Open Chat <ArrowUpRight size={12} />
                     </a>
                     <a
+                        href="/setup"
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '0.25rem',
+                            color: '#a1a1aa', textDecoration: 'none', fontSize: '0.875rem', fontWeight: 500,
+                        }}
+                    >
+                        Setup Guide <ArrowUpRight size={12} />
+                    </a>
+                    <a
                         href="mailto:sales@northern.ai"
                         style={{
                             display: 'flex', alignItems: 'center', gap: '0.25rem',
@@ -98,6 +107,13 @@ export default function Navbar({ title = 'NORTHERN Home', backLink = '/' }) {
                         onClick={() => setOpen(false)}
                     >
                         Open Chat →
+                    </a>
+                    <a
+                        href="/setup"
+                        style={{ color: '#a1a1aa', textDecoration: 'none', fontSize: '0.875rem', fontWeight: 500 }}
+                        onClick={() => setOpen(false)}
+                    >
+                        Setup Guide →
                     </a>
                     <a
                         href="mailto:sales@northern.ai"

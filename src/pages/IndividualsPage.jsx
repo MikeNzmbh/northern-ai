@@ -79,6 +79,12 @@ export default function IndividualsPage() {
                             >
                                 Download for Windows
                             </a>
+                            <a
+                                href="/setup"
+                                className="bg-transparent border border-zinc-700 text-zinc-200 px-6 py-3 rounded-full font-medium hover:bg-zinc-900 transition-colors"
+                            >
+                                Setup guide
+                            </a>
                         </div>
                     </div>
 
