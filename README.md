@@ -56,3 +56,34 @@ To successfully market Northern, we lean into the juxtaposition of its friendly 
 - **Build 3 Core "Casual Demos"**: Email, GitHub, and Unified Daily Research.
 - **Lock in the "Voice"**: Market like a high-end luxury vehicle—incredibly powerful under the hood (Rust core), but sleek and simple on the dashboard (Next.js Cockpit).
 - **Focus on "Trust"**: Evidence Gates and HITL approvals are the ultimate competitive advantage. Market the **safety**, not just the speed.
+
+## 4. Vercel Deployment (Keep Users Logged In)
+
+Use a same-origin API proxy on Vercel so browser requests stay on one origin and auth cookies persist correctly.
+
+### Required setup
+1. Keep frontend API base as `/api`.
+2. Configure Vercel rewrite:
+   - `/api/:path* -> https://api.northern.ai/:path*`
+   - keep SPA fallback rewrite after this rule.
+3. Backend must run cookie auth with hardened settings:
+   - `NORTHERN_AUTH_MODE=cookie`
+   - `SESSION_SECRET=<32+ random chars>`
+   - `COOKIE_SECURE=true`
+   - `COOKIE_SAMESITE=lax`
+   - `CORS_ALLOW_ORIGINS=https://app.northern.ai`
+   - Optional for cross-subdomain cookies: `COOKIE_DOMAIN=.northern.ai`
+
+### Verify
+- Login from the website and confirm protected endpoints return 200 with `credentials: include`.
+- Probe backend auth readiness:
+  - `GET /health/auth`
+- Confirm status is `ready` and no blockers are reported.
+
+## 5. Logging and User Traceability
+
+To keep reliable user-level visibility in production:
+- Frontend: enable Vercel log drains for request/error aggregation.
+- Backend: keep structured logs and metrics enabled.
+- Keep audit/session tables enabled in the backend DB.
+- Correlate events using backend run IDs/correlation IDs and session/user identifiers.
