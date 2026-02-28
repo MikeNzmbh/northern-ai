@@ -8,13 +8,6 @@ import {
     Bot,
 } from 'lucide-react';
 
-const workItems = [
-    ['Build a lead routing app', '1h'],
-    ['Analyze campaign ROI', '1h'],
-    ['Model ARR impact', '13h'],
-    ['Create launch assets', '5d'],
-];
-
 const featureCards = [
     {
         title: 'NORTHERN Chat for Business',

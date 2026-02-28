@@ -32,9 +32,12 @@ export function usePortalQueue(apiBase, user, deviceState) {
             window.clearInterval(intervalRef.current);
             return;
         }
-        void fetchQueue();
+        const initialPoll = window.setTimeout(() => { void fetchQueue(); }, 0);
         intervalRef.current = window.setInterval(() => { void fetchQueue(); }, POLL_MS);
-        return () => { window.clearInterval(intervalRef.current); };
+        return () => {
+            window.clearTimeout(initialPoll);
+            window.clearInterval(intervalRef.current);
+        };
     }, [user, deviceState, fetchQueue]);
 
     return { items, refresh: fetchQueue };

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { requestJson } from '../lib/api';
 import { usePublicConfig } from '../hooks/usePublicConfig';
@@ -9,7 +9,7 @@ function oauthHref(apiBase, startPath, nextPath) {
     return `${cleanBase}${cleanStart}?next=${encodeURIComponent(nextPath)}`;
 }
 
-export default function LoginPage() {
+export default function SignupPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const searchParams = new URLSearchParams(location.search);
@@ -18,35 +18,44 @@ export default function LoginPage() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { publicConfig } = usePublicConfig(apiBase);
+
     const googleEnabled = Boolean(publicConfig?.oauth?.google?.enabled);
     const appleEnabled = Boolean(publicConfig?.oauth?.apple?.enabled);
     const signupEnabled = Boolean(publicConfig?.signupEnabled ?? true);
-    const googleHref = oauthHref(apiBase, publicConfig?.oauth?.google?.startPath || '/auth/oauth/google/start', nextParams);
-    const appleHref = oauthHref(apiBase, publicConfig?.oauth?.apple?.startPath || '/auth/oauth/apple/start', nextParams);
+
+    const googleHref = useMemo(
+        () => oauthHref(apiBase, publicConfig?.oauth?.google?.startPath || '/auth/oauth/google/start', nextParams),
+        [apiBase, nextParams, publicConfig?.oauth?.google?.startPath]
+    );
+    const appleHref = useMemo(
+        () => oauthHref(apiBase, publicConfig?.oauth?.apple?.startPath || '/auth/oauth/apple/start', nextParams),
+        [apiBase, nextParams, publicConfig?.oauth?.apple?.startPath]
+    );
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!email || !password) return;
-
+        if (!email || !password || !signupEnabled) return;
         setLoading(true);
         setError(null);
-
         try {
-            await requestJson(apiBase, '/auth/login', {
+            await requestJson(apiBase, '/auth/signup', {
                 method: 'POST',
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({
+                    email,
+                    password,
+                    username: username.trim() || undefined,
+                }),
             });
-
-            // login success (cookie set)
             navigate(nextParams, { replace: true });
         } catch (err) {
-            if (err?.status === 401) {
-                setError('Invalid email or password.');
+            if (err?.status === 403) {
+                setError('Sign up is disabled for this deployment.');
             } else {
-                setError(err.message || 'Failed to sign in.');
+                setError(err.message || 'Failed to create account.');
             }
             setLoading(false);
         }
@@ -54,14 +63,12 @@ export default function LoginPage() {
 
     return (
         <div className="studio-page min-h-screen relative flex items-center justify-center p-6">
-            {/* Corner marks */}
             <span className="fixed top-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
             <span className="fixed top-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
             <span className="fixed bottom-8 left-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
             <span className="fixed bottom-8 right-8 text-[var(--text-shadow)] opacity-40 select-none pointer-events-none hidden md:block" style={{ fontSize: 16 }}>+</span>
 
             <div className="w-full max-w-[520px] animate-reveal">
-
                 {error && (
                     <div className="mb-6 border border-[var(--border-hairline)] px-4 py-3 mono-meta text-[var(--text-shadow)]" aria-live="polite">
                         {error}
@@ -69,8 +76,8 @@ export default function LoginPage() {
                 )}
 
                 <div className="mb-6">
-                    <h1 className="mono-meta text-[var(--text-stone)] text-xs mb-1">SIGN IN</h1>
-                    <p className="mono-meta text-[var(--text-shadow)]">Sign in to chat with Northern from this device-connected session.</p>
+                    <h1 className="mono-meta text-[var(--text-stone)] text-xs mb-1">CREATE ACCOUNT</h1>
+                    <p className="mono-meta text-[var(--text-shadow)]">Create your local Northern account to start chatting from this device.</p>
                 </div>
 
                 <form
@@ -79,25 +86,37 @@ export default function LoginPage() {
                     style={{ background: 'rgba(255,255,255,0.01)' }}
                 >
                     <div className="flex flex-col gap-2 md:flex-row md:items-center relative z-20">
-                        <label htmlFor="email" className="mono-meta text-[var(--text-stone)] text-xs md:w-32 shrink-0 pt-1">EMAIL</label>
+                        <label htmlFor="signup-email" className="mono-meta text-[var(--text-stone)] text-xs md:w-32 shrink-0 pt-1">EMAIL</label>
                         <input
-                            id="email"
+                            id="signup-email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            disabled={loading}
+                            disabled={loading || !signupEnabled}
                             className="flex-1 w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
                         />
                     </div>
 
                     <div className="flex flex-col gap-2 md:flex-row md:items-center relative z-20">
-                        <label htmlFor="password" className="mono-meta text-[var(--text-stone)] text-xs md:w-32 shrink-0 pt-1">PASSWORD</label>
+                        <label htmlFor="signup-password" className="mono-meta text-[var(--text-stone)] text-xs md:w-32 shrink-0 pt-1">PASSWORD</label>
                         <input
-                            id="password"
+                            id="signup-password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            disabled={loading}
+                            disabled={loading || !signupEnabled}
+                            className="flex-1 w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center relative z-20">
+                        <label htmlFor="signup-username" className="mono-meta text-[var(--text-stone)] text-xs md:w-32 shrink-0 pt-1">NAME</label>
+                        <input
+                            id="signup-username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            disabled={loading || !signupEnabled}
                             className="flex-1 w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
                         />
                     </div>
@@ -105,30 +124,24 @@ export default function LoginPage() {
                     <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-6 w-full relative z-20">
                         <button
                             type="submit"
-                            disabled={loading || !email || !password}
+                            disabled={loading || !email || !password || !signupEnabled}
                             className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors disabled:opacity-50 w-full sm:w-auto flex items-center justify-center gap-2"
                         >
                             {loading ? (
-                                <>Signing in<span className="w-1.5 h-3 bg-[var(--text-bone)] animate-pulse inline-block align-middle" /></>
+                                <>Creating<span className="w-1.5 h-3 bg-[var(--text-bone)] animate-pulse inline-block align-middle" /></>
                             ) : (
-                                'Sign in →'
+                                'Create account →'
                             )}
                         </button>
 
                         <div className="w-full sm:w-auto flex flex-col gap-2">
                             {googleEnabled && (
-                                <a
-                                    href={googleHref}
-                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
-                                >
+                                <a href={googleHref} className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]">
                                     Continue with Google →
                                 </a>
                             )}
                             {appleEnabled && (
-                                <a
-                                    href={appleHref}
-                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]"
-                                >
+                                <a href={appleHref} className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]">
                                     Continue with Apple →
                                 </a>
                             )}
@@ -137,13 +150,10 @@ export default function LoginPage() {
                 </form>
 
                 <div className="mt-8 text-center text-[var(--text-shadow)] mono-meta">
-                    {signupEnabled ? (
-                        <>Need an account? <a href={`/signup?next=${encodeURIComponent(nextParams)}`} className="text-[var(--text-stone)] hover:text-[var(--text-bone)]">Create one →</a></>
-                    ) : (
-                        <>Sign up is disabled for this deployment.</>
-                    )}
+                    Already have access? <a href={`/login?next=${encodeURIComponent(nextParams)}`} className="text-[var(--text-stone)] hover:text-[var(--text-bone)]">Sign in →</a>
                 </div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }
+
