@@ -4,7 +4,6 @@ import '../styles/studio.css';
 import { requestJson, requestMultipartJson } from '../lib/api';
 import { useSettings } from '../hooks/useSettings';
 import { useAuth } from '../hooks/useAuth';
-import { usePublicConfig } from '../hooks/usePublicConfig';
 import { useRuntimeAwake } from '../hooks/useRuntimeAwake';
 import { useDeviceStatus } from '../hooks/useDeviceStatus';
 import { usePortalQueue } from '../hooks/usePortalQueue';
@@ -299,10 +298,10 @@ function isFileDragEvent(event) {
     return types.includes('Files');
 }
 
-function oauthHref(apiBase, startPath, nextPath) {
-    const cleanBase = String(apiBase || '').replace(/\/+$/, '');
-    const cleanStart = String(startPath || '').startsWith('/') ? String(startPath || '') : `/${String(startPath || '')}`;
-    return `${cleanBase}${cleanStart}?next=${encodeURIComponent(nextPath)}`;
+function envEnabled(name, defaultValue = true) {
+    const raw = import.meta.env?.[name];
+    if (raw == null || raw === '') return defaultValue;
+    return String(raw).toLowerCase() !== 'false';
 }
 
 function PlusIcon() {
@@ -350,14 +349,11 @@ export default function ChatPortal() {
 
     const { state: runtimeState, loading: runtimeLoading, refresh: refreshRuntime } = useRuntimeAwake(apiBase, true);
     const authEnabled = runtimeState === 'awake';
-    const { user, loading: authLoading, logout, status: authStatus } = useAuth(apiBase, false, authEnabled);
-    const { publicConfig } = usePublicConfig(apiBase);
-    const googleOauthEnabled = Boolean(publicConfig?.oauth?.google?.enabled);
-    const appleOauthEnabled = Boolean(publicConfig?.oauth?.apple?.enabled);
-    const signupEnabled = Boolean(publicConfig?.signupEnabled ?? true);
-    const googleOauthHref = oauthHref(apiBase, publicConfig?.oauth?.google?.startPath || '/auth/oauth/google/start', '/chat');
-    const appleOauthHref = oauthHref(apiBase, publicConfig?.oauth?.apple?.startPath || '/auth/oauth/apple/start', '/chat');
-    const runtimeUnavailable = runtimeState === 'asleep' || authStatus === 'backend_unreachable';
+    const { user, loading: authLoading, logout } = useAuth(apiBase, false, authEnabled);
+    const googleOauthEnabled = envEnabled('VITE_NORTHERN_OAUTH_GOOGLE', true);
+    const appleOauthEnabled = envEnabled('VITE_NORTHERN_OAUTH_APPLE', false);
+    const signupEnabled = true;
+    const runtimeUnavailable = runtimeState === 'asleep';
 
     // Device state
     const { deviceStatus } = useDeviceStatus(apiBase, user);
@@ -1155,7 +1151,7 @@ export default function ChatPortal() {
                                     {(googleOauthEnabled || appleOauthEnabled) && (
                                         <div className="flex gap-3">
                                             {googleOauthEnabled && (
-                                                <a href={googleOauthHref} className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
+                                                <a href="/login?next=/chat" className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
                                                     <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                                                         <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
                                                             <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z" />
@@ -1168,7 +1164,7 @@ export default function ChatPortal() {
                                                 </a>
                                             )}
                                             {appleOauthEnabled && (
-                                                <a href={appleOauthHref} className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
+                                                <a href="/login?next=/chat" className="group flex-1 flex items-center justify-center py-4 border transition-all duration-300 hover:scale-[1.02] hover:bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)] overflow-hidden" style={{ borderColor: 'var(--border-hairline)', color: 'var(--text-ink)' }}>
                                                     <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" className="shrink-0 -mt-0.5">
                                                         <path d="M16.92 14.88c-.02-2.32 1.9-3.44 1.98-3.49-1.08-1.58-2.76-1.8-3.36-1.82-1.42-.14-2.78.84-3.5.84-.71 0-1.84-.81-3.04-.79-1.55.02-2.98.9-3.78 2.29-1.62 2.8-.41 6.94 1.18 9.22.77 1.11 1.68 2.36 2.89 2.31 1.16-.04 1.61-.75 3.01-.75 1.4 0 1.83.75 3.04.73 1.25-.02 2.05-1.15 2.8-2.26.87-1.27 1.23-2.5 1.24-2.56-.02-.01-2.39-.91-2.41-3.62zM14.99 6.88c.63-.77 1.06-1.83.94-2.88-.91.04-2.02.61-2.67 1.39-.58.68-1.09 1.77-.94 2.8 1.02.08 2.03-.54 2.67-1.31z" />
                                                     </svg>

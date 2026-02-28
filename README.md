@@ -1,107 +1,126 @@
-# Northern: High-Assurance Personal AI Orchestrator
+# Northern AI Website
 
-Northern is undergoing a massive transformation. Originally built as a strict, high-performance FX Trading Operator (with Rust engines, killswitches, and institutional discipline), it has evolved into a **High-Assurance Personal AI Orchestrator**. 
+Website and launcher frontend for Northern’s local-first assistant runtime.
 
-The recent modifications have shifted the focus toward casual user accessibility and generalized workflow automation, bridging the gap between intense security and casual convenience.
+This app has two deployment profiles:
 
-## 1. The Evolution: What Northern is Becoming
+- `public_launcher` (Vercel): marketing + account auth + launcher UX
+- `local` (localhost): full chat portal connected to local Northern backend
 
-- **Beginner-Friendly UX**: Simplified error copy, improved chat tone, and seamless Human-In-The-Loop (HITL) fallback.
-- **Persistent Tool Grants**: The concept of `yes_never` (approve once, execute natively in the session) allows for fluid workflows without sacrificing safety.
-- **Platform Agnosticism**: With email intent routing, channel clarifications, and GitHub repo disambiguation, Northern transcends order books to manage your entire digital life.
+The public website never runs full local chat directly from the cloud host.
 
-### Core Value Proposition
-Most consumer AI agents are loosely tethered and prone to hallucinate actions. Northern brings **Wall Street-grade safety rails** (evidence gates, operator locks, paper-vs-live execution modes, circuit breakers) to everyday digital workflows.
+## Architecture
 
-## 2. Real-Life Use Cases for Casual Users
+1. Identity and account lifecycle
+- Supabase Auth is the source of truth for signup/login/OAuth.
+- Website uses Supabase session state in the browser.
 
-By hiding the hardcore Python/Rust/Postgres backend behind an elegant Apple-like Next.js chat UX, casual users can use Northern for high-stakes personal orchestration.
+2. Runtime execution
+- Real assistant execution happens on the user’s local Northern backend.
+- Local portal sends bearer tokens (`Authorization: Bearer <supabase_access_token>`) to local `/api`.
 
-### A. The "Personal Chief of Staff" (Email & Comms)
-- **Scenario**: Returning from vacation to 300 emails and a chaotic Slack/Discord workspace.
-- **Workflow**: The user types, *"Northern, triage my inbox and draft polite declines to any vendor pitches."*
-- **The Magic**: Northern pauses for a Human-In-The-Loop (HITL) approval. The user hits `yes_never` for this session. Northern safely routes intents, drafts emails, and categorizes messages without accidental sends, leaning on its **Evidence Gate** to prove why it flagged certain emails as "vendor pitches."
+3. Public `/chat`
+- In `public_launcher` profile, `/chat` is launcher-only.
+- It shows account state and device presence, then routes users to local portal.
 
-### B. The "Independent Creator" (GitHub & Project Management)
-- **Scenario**: A casual developer or content creator wants to manage bug reports or website updates without leaving the chat interface.
-- **Workflow**: *"Northern, read the latest issues on my blog repository and deploy fixes for the typos mentioned."*
-- **The Magic**: Using GitHub repo intent routing and Codex skills, Northern creates a "Research Ticket", writes the code, and asks for an "Evidence Gate" approval before deploying. The user gets a simplified chat prompt rather than reading messy git diffs.
+## Environment Variables
 
-### C. The "Safe-Fail Researcher" (News & Market Scout)
-- **Scenario**: Tracking specific topics (e.g., AI hardware releases or local real estate trends) without getting hallucinated garbage.
-- **Workflow**: *"Northern, run a scout loop every morning on AI news and synthesize it into a report."*
-- **The Magic**: Leveraging the `NEWS_SCOUT` and `STRATEGY_SCIENTIST` agents, Northern requires citations (Tier A/B sources) through its immutable Research Protocol. The user receives heavily vetted, non-hallucinated daily synthesis. If a news cycle gets chaotic, a **"volatility shock circuit breaker"** halts the summary and asks the user what to focus on.
+### Required
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-## 3. Go-To-Market & Ecosystem Strategy
-
-To successfully market Northern, we lean into the juxtaposition of its friendly frontend and hardcore, battle-tested backend.
-
-### Phase 1: Study 
-- **Master the "Supervisor FSM"**: Northern is a Finite State Machine with scanning, cooling down, and lock-down states—"An AI that knows how to hit the brakes."
-- **Experiment with the Lab**: Understand how Northern proposes an action, evaluates it against a shadow (paper) state, and requires governance to push it live.
-- **Analyze the Agent Hierarchy**: Memorize the differential components (`NEWS_SCOUT`, `OPS_SENTINEL`, `CHANGE_CONTROL`) to explain Northern as a "company of experts in a box".
-
-### Phase 2: Promote
-1. **The "Military-Grade Personal AI" Angle (Twitter/LinkedIn)**
-   - *Hook*: "Most AI agents are interns who accidentally delete production. Northern is an operator with a built-in killswitch."
-   - *Content*: Side-by-side comparisons of standard AI hallucinating an email versus Northern pausing at an Evidence Gate.
-2. **The Output-First Demo Strategy (YouTube/TikTok)**
-   - Display the sleek Next.js Cockpit dark mode, Framer Motion animations, and "TradingView-style" telemetry.
-   - *Content*: 60-second workflows (e.g., parsing 50 GitHub issues, drafting PRs, waiting for execution thumbprint).
-3. **The Open-Source "Prosumer" Appeal (Hacker News/Reddit)**
-   - Position Northern as the ultimate self-hosted orchestrator, scaling from local SQLite to enterprise PostgreSQL.
-   - Emphasize the clean separation of backend (FastAPI/uvloop) and frontend (Next.js Vercel deploy).
-
-### Summary Action Plan
-- **Build 3 Core "Casual Demos"**: Email, GitHub, and Unified Daily Research.
-- **Lock in the "Voice"**: Market like a high-end luxury vehicle—incredibly powerful under the hood (Rust core), but sleek and simple on the dashboard (Next.js Cockpit).
-- **Focus on "Trust"**: Evidence Gates and HITL approvals are the ultimate competitive advantage. Market the **safety**, not just the speed.
-
-## 4. Runtime Profiles (Local-First)
-
-This frontend supports two explicit runtime profiles:
-
-1. `local` (default)
-   - `/chat` is full chat + login/signup.
-   - Expects a local NORTHERN backend (`/api` via Vite proxy).
-   - Uses runtime probe (`GET /health/live`) to show a clear "Northern isn’t awake" state when backend is down.
-   - Active only on local hostnames (`localhost`, `127.0.0.1`, `[::1]`).
-
-2. `public_launcher`
-   - `/chat` is launcher-only.
-   - `/login` and `/signup` remain available for onboarding/auth.
-   - No full chat API loop from public website to a local machine.
-   - Guides users to open their local portal once `northern up` is running.
-   - Forced automatically on non-local/public hosts as a production safety guard.
-   - Vercel rewrites explicitly exclude `/api/*` so launcher fallback handlers can return deterministic responses.
-
-### Required frontend env
-- `VITE_NORTHERN_API_BASE=/api`
+### Runtime profile
 - `VITE_NORTHERN_RUNTIME_PROFILE=local|public_launcher`
-- Optional launcher target: `VITE_NORTHERN_LOCAL_PORTAL_URL=http://127.0.0.1:5173/chat`
-- Optional OAuth button toggles:
-  - `VITE_NORTHERN_OAUTH_GOOGLE=true|false`
-  - `VITE_NORTHERN_OAUTH_APPLE=true|false`
 
-### Vercel server env (for hosted auth onboarding)
-- `NORTHERN_AUTH_API_BASE=https://<your-auth-backend-host>`
-- `/api/*` is handled by `api/[...path].js`, which proxies to `NORTHERN_AUTH_API_BASE` when set.
-- If not set, `/api/*` degrades to launcher-safe responses (no hard 502 crash).
+### API base (local profile)
+- `VITE_NORTHERN_API_BASE=/api`
 
-### Backend contract used by this frontend
-- `GET /health/live`
-- `GET /auth/public-config`
-- `GET /auth/me`
-- `POST /auth/login`
-- `POST /auth/signup`
-- `GET /auth/device-status`
-- `POST /auth/portal/queue`
-- `POST /auth/portal/queue/{id}/retry`
+### Optional
+- `VITE_NORTHERN_LOCAL_PORTAL_URL=http://127.0.0.1:5173/chat`
+- `VITE_NORTHERN_PRESENCE_STALE_SECONDS=60`
+- `VITE_NORTHERN_OAUTH_GOOGLE=true`
+- `VITE_NORTHERN_OAUTH_APPLE=false`
 
-## 5. Logging and User Traceability
+## Supabase Setup
 
-To keep reliable user-level visibility in production:
-- Frontend: enable Vercel log drains for request/error aggregation.
-- Backend: keep structured logs and metrics enabled.
-- Keep audit/session tables enabled in the backend DB.
-- Correlate events using backend run IDs/correlation IDs and session/user identifiers.
+1. Create project and copy:
+- Project URL
+- anon public key
+
+2. Configure Auth:
+- Enable Email/Password
+- Enable Google provider (Apple optional)
+- Set Supabase Auth Site URL: `https://northern-ai.vercel.app`
+- Add redirect URLs:
+  - `https://northern-ai.vercel.app/auth/callback`
+  - `http://localhost:5173/auth/callback`
+
+3. Create `northern_devices` table in Supabase (for public launcher presence):
+- `id uuid primary key default gen_random_uuid()`
+- `user_id uuid not null references auth.users(id) on delete cascade`
+- `install_id text not null`
+- `device_name text not null`
+- `is_default boolean not null default false`
+- `status text not null default 'sleeping'`
+- `last_seen_at timestamptz`
+- `heartbeat_meta jsonb not null default '{}'::jsonb`
+- `created_at timestamptz not null default now()`
+- `updated_at timestamptz not null default now()`
+- `unique(user_id, install_id)`
+
+4. RLS policies:
+- Enable RLS on `public.northern_devices`
+- Allow `select` where `user_id = auth.uid()`
+- Do not allow client insert/update/delete
+- Presence writes come from backend service-role key
+
+## Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+For local full chat, set:
+- `VITE_NORTHERN_RUNTIME_PROFILE=local`
+- `VITE_NORTHERN_API_BASE=/api`
+
+Make sure local backend is running and proxying `/api` correctly.
+
+## Build and Lint
+
+```bash
+npm run lint
+npm run build
+```
+
+## Key UX Flows
+
+1. Signup/login
+- `/login` and `/signup` use Supabase auth APIs directly.
+- OAuth returns through `/auth/callback`.
+
+2. Public launcher
+- `/chat` in `public_launcher` shows:
+  - account state
+  - device online/sleeping state from Supabase presence
+  - local portal CTA
+
+3. Local chat portal
+- `/chat` in `local` profile uses:
+  - runtime probe (`/health/live`)
+  - local backend chat/session/queue APIs
+  - attachment upload/remove
+  - async concierge run status/approval
+
+## Troubleshooting
+
+1. `Supabase is not configured for this deployment`
+- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+
+2. OAuth returns to a blank/error callback
+- Verify Supabase redirect URLs include `/auth/callback` for your exact domain.
+
+3. Public `/chat` shows sleeping
+- Confirm local Northern runtime is running and sending heartbeat.
+- Confirm backend has Supabase presence sync enabled.

@@ -1,62 +1,78 @@
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { requestJson } from '../lib/api';
-import { usePublicConfig } from '../hooks/usePublicConfig';
+import { requireSupabaseClient, supabaseConfigured } from '../lib/supabaseClient';
 
-function oauthHref(apiBase, startPath, nextPath) {
-    const cleanBase = String(apiBase || '').replace(/\/+$/, '');
-    const cleanStart = String(startPath || '').startsWith('/') ? String(startPath || '') : `/${String(startPath || '')}`;
-    return `${cleanBase}${cleanStart}?next=${encodeURIComponent(nextPath)}`;
+function envEnabled(name, defaultValue = true) {
+    const raw = import.meta.env?.[name];
+    if (raw == null || raw === '') return defaultValue;
+    return String(raw).toLowerCase() !== 'false';
 }
 
 export default function SignupPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const searchParams = new URLSearchParams(location.search);
-    const nextParams = searchParams.get('next') || '/chat';
-    const apiBase = '/api';
+    const nextPath = searchParams.get('next') || '/chat';
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { publicConfig } = usePublicConfig(apiBase);
-
-    const googleEnabled = Boolean(publicConfig?.oauth?.google?.enabled);
-    const appleEnabled = Boolean(publicConfig?.oauth?.apple?.enabled);
-    const signupEnabled = Boolean(publicConfig?.signupEnabled ?? true);
-
-    const googleHref = useMemo(
-        () => oauthHref(apiBase, publicConfig?.oauth?.google?.startPath || '/auth/oauth/google/start', nextParams),
-        [apiBase, nextParams, publicConfig?.oauth?.google?.startPath]
-    );
-    const appleHref = useMemo(
-        () => oauthHref(apiBase, publicConfig?.oauth?.apple?.startPath || '/auth/oauth/apple/start', nextParams),
-        [apiBase, nextParams, publicConfig?.oauth?.apple?.startPath]
-    );
+    const [notice, setNotice] = useState(null);
+    const googleEnabled = useMemo(() => envEnabled('VITE_NORTHERN_OAUTH_GOOGLE', true), []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!email || !password || !signupEnabled) return;
+        if (!email || !password) return;
+        if (!supabaseConfigured) {
+            setError('Supabase is not configured for this deployment.');
+            return;
+        }
+
         setLoading(true);
         setError(null);
-        try {
-            await requestJson(apiBase, '/auth/signup', {
-                method: 'POST',
-                body: JSON.stringify({
-                    email,
-                    password,
-                    username: username.trim() || undefined,
-                }),
-            });
-            navigate(nextParams, { replace: true });
-        } catch (err) {
-            if (err?.status === 403) {
-                setError('Sign up is disabled for this deployment.');
-            } else {
-                setError(err.message || 'Failed to create account.');
-            }
+        setNotice(null);
+        const client = requireSupabaseClient();
+        const { data, error: signUpError } = await client.auth.signUp({
+            email: email.trim(),
+            password,
+            options: {
+                data: {
+                    full_name: username.trim() || undefined,
+                },
+                emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+            },
+        });
+        if (signUpError) {
+            setError(signUpError.message || 'Failed to create account.');
+            setLoading(false);
+            return;
+        }
+        if (!data?.session) {
+            setNotice('Check your email to confirm your account, then sign in.');
+            setLoading(false);
+            return;
+        }
+        navigate(nextPath, { replace: true });
+    };
+
+    const handleGoogle = async () => {
+        if (!supabaseConfigured) {
+            setError('Supabase is not configured for this deployment.');
+            return;
+        }
+        setLoading(true);
+        setError(null);
+        setNotice(null);
+        const client = requireSupabaseClient();
+        const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+        const { error: oauthError } = await client.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo },
+        });
+        if (oauthError) {
+            setError(oauthError.message || 'Could not start Google sign-up.');
             setLoading(false);
         }
     };
@@ -74,10 +90,15 @@ export default function SignupPage() {
                         {error}
                     </div>
                 )}
+                {notice && (
+                    <div className="mb-6 border border-[var(--border-hairline)] px-4 py-3 mono-meta text-[var(--text-stone)]" aria-live="polite">
+                        {notice}
+                    </div>
+                )}
 
                 <div className="mb-6">
                     <h1 className="mono-meta text-[var(--text-stone)] text-xs mb-1">CREATE ACCOUNT</h1>
-                    <p className="mono-meta text-[var(--text-shadow)]">Create your local Northern account to start chatting from this device.</p>
+                    <p className="mono-meta text-[var(--text-shadow)]">Create your Northern account.</p>
                 </div>
 
                 <form
@@ -92,7 +113,7 @@ export default function SignupPage() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            disabled={loading || !signupEnabled}
+                            disabled={loading}
                             className="flex-1 w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
                         />
                     </div>
@@ -104,7 +125,7 @@ export default function SignupPage() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            disabled={loading || !signupEnabled}
+                            disabled={loading}
                             className="flex-1 w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
                         />
                     </div>
@@ -116,7 +137,7 @@ export default function SignupPage() {
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            disabled={loading || !signupEnabled}
+                            disabled={loading}
                             className="flex-1 w-full bg-transparent border-b border-[var(--border-hairline)] text-[var(--text-bone)] py-1 focus:outline-none focus:border-[var(--border-focus)] transition-colors mono-meta"
                         />
                     </div>
@@ -124,7 +145,7 @@ export default function SignupPage() {
                     <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-6 w-full relative z-20">
                         <button
                             type="submit"
-                            disabled={loading || !email || !password || !signupEnabled}
+                            disabled={loading || !email || !password}
                             className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors disabled:opacity-50 w-full sm:w-auto flex items-center justify-center gap-2"
                         >
                             {loading ? (
@@ -136,21 +157,21 @@ export default function SignupPage() {
 
                         <div className="w-full sm:w-auto flex flex-col gap-2">
                             {googleEnabled && (
-                                <a href={googleHref} className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]">
+                                <button
+                                    type="button"
+                                    onClick={handleGoogle}
+                                    disabled={loading}
+                                    className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)] text-left"
+                                >
                                     Continue with Google →
-                                </a>
-                            )}
-                            {appleEnabled && (
-                                <a href={appleHref} className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] transition-colors border-b border-transparent hover:border-[var(--border-hairline)]">
-                                    Continue with Apple →
-                                </a>
+                                </button>
                             )}
                         </div>
                     </div>
                 </form>
 
                 <div className="mt-8 text-center text-[var(--text-shadow)] mono-meta">
-                    Already have access? <a href={`/login?next=${encodeURIComponent(nextParams)}`} className="text-[var(--text-stone)] hover:text-[var(--text-bone)]">Sign in →</a>
+                    Already have access? <a href={`/login?next=${encodeURIComponent(nextPath)}`} className="text-[var(--text-stone)] hover:text-[var(--text-bone)]">Sign in →</a>
                 </div>
             </div>
         </div>
