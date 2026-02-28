@@ -4,6 +4,10 @@
     },
     "rewrites": [
         {
+            "source": "/api/:path*",
+            "destination": "/chat"
+        },
+        {
             "source": "/((?!api/).*)",
             "destination": "/index.html"
         }
