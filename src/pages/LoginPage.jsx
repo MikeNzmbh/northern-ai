@@ -140,6 +140,19 @@ export default function LoginPage() {
                     </div>
                 </form>
 
+                <div className="mt-5 border border-[var(--border-hairline)] px-4 py-4 sm:px-5 sm:py-4" style={{ background: 'rgba(255,255,255,0.01)' }}>
+                    <p className="mono-meta text-[var(--text-stone)] text-xs mb-2">FIRST-TIME SETUP</p>
+                    <p className="mono-meta text-[var(--text-shadow)] mb-3">
+                        First time on this device? Open the setup guide before chatting.
+                    </p>
+                    <a
+                        href={`/setup?next=${encodeURIComponent(nextPath)}`}
+                        className="mono-meta text-[var(--text-stone)] hover:text-[var(--text-bone)] border-b border-transparent hover:border-[var(--border-hairline)]"
+                    >
+                        Open setup guide →
+                    </a>
+                </div>
+
                 <div className="mt-8 text-center text-[var(--text-shadow)] mono-meta">
                     Need an account? <a href={`/signup?next=${encodeURIComponent(nextPath)}`} className="text-[var(--text-stone)] hover:text-[var(--text-bone)]">Create one →</a>
                 </div>

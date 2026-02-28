@@ -115,6 +115,12 @@ export default function ChatLauncherPage() {
                                 Open local portal →
                             </a>
                             <a
+                                href="/setup"
+                                className="mono-meta border border-[var(--border-hairline)] hover:border-[var(--border-focus)] text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
+                            >
+                                Setup guide →
+                            </a>
+                            <a
                                 href="/"
                                 className="mono-meta border border-[var(--border-hairline)] text-[var(--text-stone)] hover:text-[var(--text-bone)] px-6 py-3 transition-colors text-center"
                             >
