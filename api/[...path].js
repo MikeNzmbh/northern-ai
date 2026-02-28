@@ -14,6 +14,16 @@ function json(res, status, body) {
 
 export default function handler(req, res) {
   const path = pathFromRequest(req);
+  const next = typeof req.query?.next === 'string' ? req.query.next : '/chat';
+
+  if (path.startsWith('/auth/oauth/')) {
+    // Public site is launcher-only; older cached clients may still hit OAuth endpoints.
+    // Redirect back to chat launcher with an explicit reason instead of surfacing a gateway error.
+    const location = `${next.includes('?') ? next : `${next}?`}launcher_only=1`;
+    res.status(307);
+    res.setHeader('location', location);
+    return res.end();
+  }
 
   // Keep runtime probe deterministic for older clients: public site is reachable,
   // but full chat execution remains local-only.
@@ -44,6 +54,10 @@ export default function handler(req, res) {
       launcher_only: true,
       message: 'Use your local Northern portal to sign in and chat.',
     });
+  }
+
+  if (path === '/auth/logout') {
+    return json(res, 200, { ok: true, launcher_only: true });
   }
 
   return json(res, 503, {

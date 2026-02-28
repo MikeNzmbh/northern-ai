@@ -72,6 +72,7 @@ This frontend supports two explicit runtime profiles:
    - No full chat API loop from public website to a local machine.
    - Guides users to open their local portal once `northern up` is running.
    - Forced automatically on non-local/public hosts as a production safety guard.
+   - Vercel rewrites explicitly exclude `/api/*` so launcher fallback handlers can return deterministic responses.
 
 ### Required frontend env
 - `VITE_NORTHERN_API_BASE=/api`
